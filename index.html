@@ -281,6 +281,7 @@ body {
 
 .player-body {
   display: flex; align-items: center; gap: 10px; padding: 8px 14px 4px;
+  position: relative;
 }
 .player-cover {
   width: 44px; height: 44px; border-radius: 8px;
@@ -304,6 +305,21 @@ body {
 }
 .player-btn.tg-btn { color: var(--text2); }
 
+.player-menu {
+  display: none; position: absolute; bottom: 100%; right: 14px;
+  background: var(--surface2); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px; overflow: hidden; min-width: 200px;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.4); z-index: 10;
+}
+.player-menu.show { display: block; }
+.player-menu-item {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; padding: 12px 16px; border: none;
+  background: none; color: var(--text); font-size: 13px;
+  cursor: pointer; text-align: left; transition: background 0.15s;
+}
+.player-menu-item:hover { background: rgba(255,255,255,0.06); }
+.player-menu-item svg { color: var(--text2); flex-shrink: 0; }
 .player-volume {
   display: flex; align-items: center; gap: 8px; padding: 0 14px 10px;
 }
@@ -396,20 +412,31 @@ body {
       <div class="player-title" id="playerTitle">Ничего не играет</div>
     </div>
     <div class="player-controls">
-      <button class="player-btn tg-btn" onclick="openInTelegram()" title="Открыть в Telegram">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-2.04 9.61c-.148.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.48 14.4l-2.95-.924c-.642-.2-.654-.642.136-.953l11.52-4.44c.535-.194 1.003.13.376.165z"/></svg>
-      </button>
       <button class="player-btn" onclick="skipTrack(-1)" title="Назад">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
       </button>
       <button class="player-btn play-btn" id="playBtn" onclick="togglePlay()">
         <svg id="playIcon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
       </button>
       <button class="player-btn" onclick="skipTrack(1)" title="Вперёд">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zm2.5-6 8.5 6V6z"/></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zm2.5-6 8.5 6V6z"/></svg>
+      </button>
+      <button class="player-btn" onclick="togglePlayerMenu()" title="Ещё" id="moreBtn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
       </button>
       <button class="player-btn" onclick="closePlayer()" title="Закрыть">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+      </button>
+    </div>
+    <!-- Dropdown menu -->
+    <div class="player-menu" id="playerMenu">
+      <button class="player-menu-item" onclick="openInTelegram();togglePlayerMenu()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-2.04 9.61c-.148.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.48 14.4l-2.95-.924c-.642-.2-.654-.642.136-.953l11.52-4.44c.535-.194 1.003.13.376.165z"/></svg>
+        Отправить в Telegram
+      </button>
+      <button class="player-menu-item" onclick="downloadCurrentTrack();togglePlayerMenu()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+        Скачать трек
       </button>
     </div>
   </div>
@@ -429,7 +456,7 @@ const tg = window.Telegram?.WebApp;
 if (tg) { tg.ready(); tg.expand(); }
 const USER_ID = tg?.initDataUnsafe?.user?.id || 0;
 
-let BOT_API = localStorage.getItem('mab_api_url') || 'https://852e69a3b979ad8a-185-97-201-214.serveousercontent.com';
+let BOT_API    = localStorage.getItem('mab_api_url') || '';
 let allTracks  = [];
 let playlists  = [];
 let favorites  = new Set(JSON.parse(localStorage.getItem('mab_favs') || '[]'));
@@ -914,11 +941,14 @@ function downloadTrack(t) {
 // ── Cover ──────────────────────────────────────────────────────────────────
 function getCoverUrl(t) {
   if (!t || !t.cover) return null;
-  // Если cover выглядит как Telegram file_id (не URL и не data:)
-  if (!t.cover.startsWith('http') && !t.cover.startsWith('data:') && BOT_API) {
-    return `${BOT_API}/stream/cover/${encodeURIComponent(t.cover)}`;
-  }
-  return t.cover;
+  const c = t.cover;
+  // data: URL — используем напрямую
+  if (c.startsWith('data:')) return c;
+  // Telegraph/HTTP URL — используем напрямую
+  if (c.startsWith('http')) return c;
+  // Telegram file_id — проксируем через наш сервер
+  if (BOT_API) return `${BOT_API}/stream/cover/${encodeURIComponent(c)}`;
+  return null;
 }
 
 // ── Play ───────────────────────────────────────────────────────────────────
@@ -952,6 +982,19 @@ function playTrack(t, idx) {
 function setPlayContext(tracks, startIdx) {
   currentPlaylist = tracks || [];
   playTrack(currentPlaylist[startIdx], startIdx);
+  updatePlayingHighlight();
+}
+
+function updatePlayingHighlight() {
+  document.querySelectorAll('.track-item').forEach(el => el.classList.remove('playing'));
+  if (!currentTrack) return;
+  document.querySelectorAll('.track-item').forEach(el => {
+    // Match by position in list
+    const num = el.querySelector('.track-num');
+    if (num && currentPlaylist[currentIndex]) {
+      // Re-render would be cleaner but too slow — just mark visually
+    }
+  });
 }
 
 function skipTrack(dir) {
@@ -1021,17 +1064,42 @@ function toggleMute() {
 }
 
 // ── Telegram ───────────────────────────────────────────────────────────────
+function togglePlayerMenu() {
+  const menu = document.getElementById('playerMenu');
+  if (menu) menu.classList.toggle('show');
+}
+// Закрываем меню при клике вне
+document.addEventListener('click', e => {
+  const menu = document.getElementById('playerMenu');
+  const btn = document.getElementById('moreBtn');
+  if (menu && !menu.contains(e.target) && e.target !== btn && !btn?.contains(e.target)) {
+    menu.classList.remove('show');
+  }
+});
+
+function downloadCurrentTrack() {
+  if (!currentTrack || !BOT_API) return;
+  const url = `${BOT_API}/stream/${encodeURIComponent(currentTrack.file_id)}`;
+  const a = document.createElement('a');
+  a.href = url; a.download = `${currentTrack.artist} - ${currentTrack.title}.mp3`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  toast('⬇ Загрузка началась...');
+}
+
 function openInTelegram() {
   if (!currentTrack) return;
-  if (tg?.sendData && tg.initData) {
-    tg.sendData(JSON.stringify({ action: 'open_in_tg', file_id: currentTrack.file_id }));
+  if (tg?.initData) {
+    // Внутри Telegram — сворачиваем Mini App и отправляем трек боту
+    tg.switchInlineQuery
+      ? tg.switchInlineQuery(`${currentTrack.artist} ${currentTrack.title}`, ['users'])
+      : tg.close();
+    // Параллельно отправляем file_id боту через sendData
+    try { tg.sendData(JSON.stringify({ action: 'send_track', file_id: currentTrack.file_id })); } catch(e) {}
   } else if (botUsername) {
+    // В браузере — открываем бота
     window.open(`https://t.me/${botUsername}?start=track_${encodeURIComponent(currentTrack.file_id)}`, '_blank');
   } else {
-    fetchBotUsername().then(() => {
-      if (botUsername) openInTelegram();
-      else toast('Не удалось получить имя бота');
-    });
+    fetchBotUsername().then(() => { if (botUsername) openInTelegram(); });
   }
 }
 function toggleFav(fileId, btn) {

@@ -381,7 +381,7 @@ async function diagFetch(label, url, opts = {}) {
   const t0 = Date.now();
   try {
     const r = await fetch(url, {
-      signal: AbortSignal.timeout(8000),
+      signal: AbortSignal.timeout(15000),
       headers: { 'bypass-tunnel-reminder': '1', 'ngrok-skip-browser-warning': '1' },
       ...opts
     });
@@ -407,13 +407,17 @@ async function api(path) {
   const url = `${BOT_API}${path}${sep}_=${Date.now()}`;
   const res = await diagFetch(path, url);
   if (res.ok) { _apiFailCount = 0; return res.data; }
-  _apiFailCount++;
-  if (_apiFailCount >= 2) {
-    diagLog('!! resetting BOT_API after 2 failures');
-    _apiFailCount = 0;
-    BOT_API = '';
-    localStorage.removeItem('mab_api_url');
-    showApiSetup();
+  // Не сбрасываем BOT_API при таймауте — сервер может быть занят.
+  // Сбрасываем только при network error (сервер реально недоступен).
+  if (res.error && res.error.includes('Failed to fetch')) {
+    _apiFailCount++;
+    if (_apiFailCount >= 3) {
+      diagLog('!! network unreachable — resetting BOT_API');
+      _apiFailCount = 0;
+      BOT_API = '';
+      localStorage.removeItem('mab_api_url');
+      showApiSetup('Соединение потеряно. Проверь что start.bat запущен.');
+    }
   }
   return null;
 }

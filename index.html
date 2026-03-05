@@ -31,6 +31,11 @@ body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }
+#app {
+  max-width: 600px;
+  margin: 0 auto;
+  position: relative;
+}
 
 .header {
   position: sticky; top: 0; z-index: 200;
@@ -241,6 +246,7 @@ body {
   border-top: 1px solid rgba(255,255,255,0.06);
   transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
   padding-bottom: env(safe-area-inset-bottom);
+  max-width: 600px; margin: 0 auto;
 }
 .player.show { transform: translateY(0); }
 
@@ -311,12 +317,12 @@ body {
 
 /* Lyrics modal */
 .lyrics-modal {
-  position: fixed; inset: 0; z-index: 600;
+  position: fixed; inset: 0; z-index: 600; max-width: 600px; left: 50%; transform: translateX(-50%) translateY(100%);
   background: rgba(0,0,0,0.85); backdrop-filter: blur(20px);
   display: flex; flex-direction: column;
   transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
 }
-.lyrics-modal.show { transform: translateY(0); }
+.lyrics-modal.show { transform: translateX(-50%) translateY(0); }
 .lyrics-header {
   display: flex; align-items: center; justify-content: space-between;
   padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.06);
@@ -364,6 +370,7 @@ body {
   </div>
 </div>
 
+<div id="app">
 <div id="mainView">
   <div class="content" id="tabContent">
     <div class="loading"><div class="spinner"></div></div>
@@ -385,6 +392,7 @@ body {
 </div>
 
 <!-- PLAYER -->
+</div>
 <div class="player" id="player">
   <div class="player-seek" id="playerSeek" onmousedown="seekStart(event)" ontouchstart="seekStart(event)">
     <div class="player-seek-track">

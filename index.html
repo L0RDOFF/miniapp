@@ -197,6 +197,16 @@ body {
   font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;
 }
 .detail-title { font-family: 'Unbounded', sans-serif; font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cover-upload-btn {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0); border-radius: var(--radius); cursor: pointer;
+  transition: background 0.2s; opacity: 0;
+}
+.detail-cover:hover .cover-upload-btn { opacity: 1; background: rgba(0,0,0,0.55); }
+.cover-upload-label {
+  color: #fff; font-size: 11px; font-weight: 600; text-align: center; pointer-events: none;
+}
+.cover-uploading { opacity: 0.5; pointer-events: none; }
 .detail-hero { padding: 16px 16px 0; display: flex; gap: 14px; align-items: flex-end; margin-bottom: 14px; }
 .detail-cover {
   width: 100px; height: 100px; border-radius: var(--radius);
@@ -276,6 +286,20 @@ body {
   background: var(--accent); color: #000; font-size: 14px; width: 38px; height: 38px;
 }
 .player-btn.tg-btn { font-size: 14px; color: var(--text2); }
+.volume-wrap { display: flex; align-items: center; gap: 6px; padding: 0 14px 10px; }
+.volume-icon { font-size: 13px; color: var(--text2); cursor: pointer; }
+.volume-slider {
+  flex: 1; -webkit-appearance: none; appearance: none;
+  height: 3px; border-radius: 2px; outline: none;
+  background: linear-gradient(to right, var(--accent) 0%, var(--surface3) 0%);
+  cursor: pointer;
+}
+.volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 13px; height: 13px;
+  border-radius: 50%; background: var(--accent); cursor: pointer;
+}
+.time-wrap { display: flex; justify-content: space-between; padding: 2px 14px 0; }
+.time-txt { font-size: 10px; color: var(--text3); font-family: monospace; }
 
 .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text3); flex-shrink: 0; transition: background 0.3s; }
 .status-dot.online { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
@@ -340,10 +364,20 @@ body {
       <div class="player-title" id="playerTitle">Ничего не играет</div>
     </div>
     <div class="player-controls">
-      <button class="player-btn tg-btn" id="tgBtn" onclick="openInTelegram()" title="Открыть в Telegram">✈</button>
+      <button class="player-btn tg-btn" id="tgBtn" onclick="openInTelegram()" title="Открыть в Telegram">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248l-2.04 9.61c-.148.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.48 14.4l-2.95-.924c-.642-.2-.654-.642.136-.953l11.52-4.44c.535-.194 1.003.13.376.165z"/></svg>
+      </button>
       <button class="player-btn play-btn" id="playBtn" onclick="togglePlay()">▶</button>
       <button class="player-btn" onclick="closePlayer()" style="font-size:14px;color:var(--text3)">✕</button>
     </div>
+  </div>
+  <div class="time-wrap">
+    <span class="time-txt" id="timeCurrent">0:00</span>
+    <span class="time-txt" id="timeDuration">0:00</span>
+  </div>
+  <div class="volume-wrap">
+    <span class="volume-icon" onclick="toggleMute()">🔊</span>
+    <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="100" oninput="setVolume(this.value)">
   </div>
 </div>
 
@@ -364,66 +398,21 @@ let searchOpen  = false;
 
 // ── API ──────────────────────────────────────
 
-let _apiFailCount = 0;
-const _diagLog = [];
-
-function diagLog(msg, data) {
-  const ts = new Date().toISOString().substr(11,12);
-  const line = data !== undefined ? `[${ts}] ${msg}: ${JSON.stringify(data)}` : `[${ts}] ${msg}`;
-  _diagLog.push(line);
-  console.log('%c[MusicArchive] ' + line, 'color:#c8f53a');
-  const logEl = document.getElementById('diagLogContent');
-  if (logEl) logEl.textContent = _diagLog.slice(-50).join('\n');
-}
-
-async function diagFetch(label, url, opts = {}) {
-  diagLog(`→ ${label}`, url);
-  const t0 = Date.now();
-  try {
-    const r = await fetch(url, {
-      signal: AbortSignal.timeout(15000),
-      headers: { 'bypass-tunnel-reminder': '1', 'ngrok-skip-browser-warning': '1' },
-      ...opts
-    });
-    const ms = Date.now() - t0;
-    diagLog(`← ${label} status`, `${r.status} (${ms}ms)`);
-    if (!r.ok) {
-      const body = await r.text().catch(() => '');
-      diagLog(`← ${label} body`, body.substr(0,300));
-      throw new Error(`HTTP ${r.status}`);
-    }
-    const json = await r.json();
-    diagLog(`← ${label} ok`, json);
-    return { ok: true, data: json };
-  } catch(e) {
-    diagLog(`✗ ${label} failed`, e.message);
-    return { ok: false, error: e.message };
-  }
-}
-
 async function api(path) {
-  if (!BOT_API) { diagLog('api() skipped — no BOT_API'); return null; }
-  const sep = path.includes('?') ? '&' : '?';
-  const url = `${BOT_API}${path}${sep}_=${Date.now()}`;
-  const res = await diagFetch(path, url);
-  if (res.ok) { _apiFailCount = 0; return res.data; }
-  // Не сбрасываем BOT_API при таймауте — сервер может быть занят.
-  // Сбрасываем только при network error (сервер реально недоступен).
-  if (res.error && res.error.includes('Failed to fetch')) {
-    _apiFailCount++;
-    if (_apiFailCount >= 3) {
-      diagLog('!! network unreachable — resetting BOT_API');
-      _apiFailCount = 0;
-      BOT_API = '';
-      localStorage.removeItem('mab_api_url');
-      showApiSetup('Соединение потеряно. Проверь что start.bat запущен.');
-    }
-  }
-  return null;
+  if (!BOT_API) return null;
+  try {
+    const sep = path.includes('?') ? '&' : '?';
+    const r = await fetch(`${BOT_API}${path}${sep}_=${Date.now()}`, {
+      signal: AbortSignal.timeout(8000)
+    });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    return await r.json();
+  } catch(e) { console.warn('API:', e.message); return null; }
 }
 
 async function autoFetchTunnelUrl() {
   diagLog('autoFetchTunnelUrl', BOT_API || '(empty)');
+  // Если есть сохранённый URL — проверяем что он живой
   if (BOT_API) {
     const res = await diagFetch('health-init', `${BOT_API}/health`);
     if (res.ok) { diagLog('Saved URL alive ✓'); return; }
@@ -431,58 +420,33 @@ async function autoFetchTunnelUrl() {
     BOT_API = '';
     localStorage.removeItem('mab_api_url');
   }
+  // Автоопределение: пробуем localhost (если на том же ПК)
+  // и через /tunnel-url получаем актуальный Serveo/ngrok URL
+  const localBases = ['http://localhost:8080', 'http://127.0.0.1:8080'];
+  for (const base of localBases) {
+    try {
+      const r = await fetch(`${base}/tunnel-url`, { signal: AbortSignal.timeout(2000) });
+      if (!r.ok) continue;
+      const data = await r.json();
+      const url = data.url || base;
+      BOT_API = url;
+      localStorage.setItem('mab_api_url', url);
+      diagLog('Auto-detected via /tunnel-url', url);
+      return;
+    } catch(e) {}
+  }
+  diagLog('Auto-detect failed — showing setup screen');
 }
 
 async function checkConnection() {
-  diagLog('checkConnection', BOT_API);
-  const res = await diagFetch('/health', `${BOT_API}/health`);
-  document.getElementById('statusDot').classList.toggle('online', res.ok);
-  return res.ok;
-}
-
-// ── DIAG PANEL ───────────────────────────────
-
-async function runServerDiag() {
-  if (!BOT_API) { toast('Сначала введи URL'); return; }
-  diagLog('=== SERVER DIAG START ===');
-  const res = await diagFetch('/debug', BOT_API + '/debug');
-  showDiagLog();
-  if (res.ok) {
-    diagLog('--- Server diag results ---');
-    for (const [k, v] of Object.entries(res.data)) {
-      diagLog(k, v);
-    }
-  }
-}
-
-function showDiagLog() {
-  const existing = document.getElementById('diagPanel');
-  if (existing) { existing.remove(); return; }
-  const div = document.createElement('div');
-  div.id = 'diagPanel';
-  div.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#0a0a0a;border-top:2px solid #c8f53a;max-height:50vh;display:flex;flex-direction:column;';
-  div.innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 14px;border-bottom:1px solid #1e1e1e;flex-shrink:0">
-      <span style="font-size:12px;font-weight:700;color:#c8f53a;font-family:monospace">🔍 Diagnostic Log</span>
-      <div style="display:flex;gap:8px">
-        <button onclick="navigator.clipboard.writeText(_diagLog.join('\n')).then(()=>toast('Скопировано ✓'))"
-          style="background:#1e1e1e;border:1px solid #333;color:#c8f53a;font-size:11px;padding:3px 10px;border-radius:6px;cursor:pointer">
-          📋 Копировать
-        </button>
-        <button onclick="document.getElementById('diagPanel').remove()"
-          style="background:#1e1e1e;border:1px solid #333;color:#777;font-size:12px;padding:3px 10px;border-radius:6px;cursor:pointer">
-          ✕ Закрыть
-        </button>
-      </div>
-    </div>
-    <pre id="diagLogContent" style="flex:1;overflow-y:auto;margin:0;padding:10px 14px;font-family:monospace;font-size:11px;color:#bbb;line-height:1.7;white-space:pre-wrap;word-break:break-all;">${_diagLog.slice(-50).join('\n') || '(пусто — нажми «Повторить попытку»)'}</pre>`;
-  document.body.appendChild(div);
-  div.querySelector('pre').scrollTop = 99999;
+  const ok = await api('/health');
+  document.getElementById('statusDot').classList.toggle('online', !!ok);
+  return !!ok;
 }
 
 // ── SETUP ────────────────────────────────────
 
-function showApiSetup(errorMsg) {
+function showApiSetup() {
   closeSearch();
   closeDetail();
   document.getElementById('mainView').style.display = 'block';
@@ -491,37 +455,25 @@ function showApiSetup(errorMsg) {
     <div class="setup-screen">
       <div class="setup-title">Подключение</div>
       <div class="setup-desc">
-        ${errorMsg ? `<div style="color:#ff6b6b;margin-bottom:12px;font-size:13px">⚠️ ${errorMsg}</div>` : ''}
-        Каждый запуск <code style="color:var(--accent)">start.bat</code> создаёт <b>новый</b> URL туннеля.
-        Скопируй его из окна cloudflared и вставь ниже:<br><br>
-        <div class="setup-code">Выглядит как: https://xxxx-xxxx-xxxx.trycloudflare.com</div>
+        Запусти <code style="color:var(--accent)">start.bat</code> — URL обновится автоматически.<br><br>
+        Или вставь URL из окна cloudflared вручную:
+        <div class="setup-code">cloudflared tunnel --url http://localhost:8080 --protocol http2</div>
       </div>
       <input id="apiUrlInput" class="setup-input" type="url"
         value="${x(BOT_API)}" placeholder="https://xxxx.trycloudflare.com">
       <button class="setup-btn" onclick="applyApiUrl()">Сохранить и подключиться</button>
-      ${BOT_API ? `<button class="setup-btn" style="margin-top:8px;background:var(--surface2);color:var(--text)" onclick="retryConnection()">↻ Повторить попытку</button>` : ''}
-      <button class="setup-btn" style="margin-top:8px;background:transparent;border:1px solid #2a2a2a;color:var(--text2);font-size:13px" onclick="showDiagLog()">🔍 Лог диагностики</button>
-      <button class="setup-btn" style="margin-top:8px;background:transparent;border:1px solid #2a2a2a;color:#c8f53a;font-size:13px" onclick="runServerDiag()">⚙️ Диагностика сервера</button>
     </div>`;
-}
-
-async function retryConnection() {
-  diagLog('=== retryConnection ===');
-  const ok = await checkConnection();
-  if (ok) { toast('✅ Подключено!'); setTimeout(() => loadTab(currentTab), 500); }
-  else showApiSetup('Сервер не отвечает. Нажми «Лог диагностики» чтобы понять причину.');
 }
 
 async function applyApiUrl() {
   const url = (document.getElementById('apiUrlInput')?.value || '').trim().replace(/\/$/, '');
   if (!url.startsWith('http')) { toast('URL должен начинаться с https://'); return; }
-  diagLog('=== applyApiUrl ===', url);
   BOT_API = url;
   localStorage.setItem('mab_api_url', url);
-  _apiFailCount = 0;
+  toast('Проверяю...');
   const ok = await checkConnection();
-  if (ok) { toast('✅ Подключено!'); setTimeout(() => loadTab(currentTab), 600); }
-  else showApiSetup('Сервер не отвечает. Нажми «Лог диагностики» чтобы понять причину.');
+  if (ok) { toast('Подключено'); setTimeout(() => loadTab(currentTab), 600); }
+  else toast('Сервер не отвечает');
 }
 
 // ── NAV ──────────────────────────────────────
@@ -609,7 +561,12 @@ async function openPlaylist(id) {
     : `<div style="width:100%;height:100%;background:linear-gradient(135deg,#141414,#1e1e0a);display:flex;align-items:center;justify-content:center;font-family:Unbounded,sans-serif;font-size:22px;font-weight:800;color:#2a2a1a">${x(initials)}</div>`;
   let html = `
     <div class="detail-hero">
-      <div class="detail-cover">${coverHtml}</div>
+      <div class="detail-cover" style="position:relative">
+        ${coverHtml}
+        <label class="cover-upload-btn" title="Загрузить обложку" onclick="uploadPlaylistCover(${id}, event)">
+          <span class="cover-upload-label">📷<br>Обложка</span>
+        </label>
+      </div>
       <div>
         <div class="detail-name">${x(pl.name)}</div>
         ${pl.description ? `<div class="detail-desc">${x(pl.description)}</div>` : ''}
@@ -624,6 +581,51 @@ async function openPlaylist(id) {
   if (data?.tracks?.length) data.tracks.forEach((t, i) => { html += trackRow(t, i + 1); });
   else html += empty('Плейлист пуст');
   content.innerHTML = html + '</div>';
+}
+
+async function uploadPlaylistCover(plId, e) {
+  e.preventDefault();
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = async () => {
+    const file = input.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { toast('Файл слишком большой (макс 5MB)'); return; }
+    toast('Загружаю обложку...');
+    const cover = document.querySelector('.detail-cover');
+    if (cover) cover.classList.add('cover-uploading');
+    try {
+      const fd = new FormData();
+      fd.append('cover', file);
+      fd.append('playlist_id', plId);
+      const r = await fetch(`${BOT_API}/playlists/${plId}/cover`, {
+        method: 'POST',
+        headers: { 'bypass-tunnel-reminder': '1' },
+        body: fd
+      });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const data = await r.json();
+      toast('✅ Обложка обновлена!');
+      // Обновляем обложку без перезагрузки
+      if (cover) {
+        cover.classList.remove('cover-uploading');
+        const img = cover.querySelector('img') || document.createElement('img');
+        img.src = data.cover_url + '?t=' + Date.now();
+        img.loading = 'lazy';
+        img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:var(--radius)';
+        if (!cover.querySelector('img')) cover.insertBefore(img, cover.firstChild);
+      }
+      // Обновляем кеш плейлистов
+      const pl = playlists.find(p => p.id === plId);
+      if (pl) pl.cover = data.cover_url;
+    } catch(err) {
+      toast('Ошибка загрузки: ' + err.message);
+      const cover = document.querySelector('.detail-cover');
+      if (cover) cover.classList.remove('cover-uploading');
+    }
+  };
+  input.click();
 }
 
 function closeDetail() {
@@ -745,12 +747,44 @@ async function fetchBotUsername() {
   } catch(e) {}
 }
 
+function fmtTime(s) {
+  if (!s || isNaN(s)) return '0:00';
+  const m = Math.floor(s / 60), sec = Math.floor(s % 60);
+  return m + ':' + String(sec).padStart(2, '0');
+}
+
 audio.addEventListener('timeupdate', () => {
   if (!audio.duration) return;
   const pct = (audio.currentTime / audio.duration) * 100;
   document.getElementById('playerFill').style.width = pct + '%';
   document.getElementById('playerFill').style.transition = 'none';
+  document.getElementById('timeCurrent').textContent = fmtTime(audio.currentTime);
 });
+
+audio.addEventListener('loadedmetadata', () => {
+  document.getElementById('timeDuration').textContent = fmtTime(audio.duration);
+});
+
+function setVolume(val) {
+  audio.volume = val / 100;
+  const icon = document.querySelector('.volume-icon');
+  if (icon) icon.textContent = val == 0 ? '🔇' : val < 50 ? '🔉' : '🔊';
+  // Обновляем градиент слайдера
+  const slider = document.getElementById('volumeSlider');
+  if (slider) slider.style.background = `linear-gradient(to right, var(--accent) ${val}%, var(--surface3) ${val}%)`;
+}
+
+function toggleMute() {
+  const slider = document.getElementById('volumeSlider');
+  if (!slider) return;
+  if (audio.volume > 0) {
+    audio._prevVol = audio.volume;
+    slider.value = 0;
+  } else {
+    slider.value = Math.round((audio._prevVol || 1) * 100);
+  }
+  setVolume(slider.value);
+}
 
 audio.addEventListener('ended', () => {
   document.getElementById('playBtn').textContent = '▶';
@@ -824,13 +858,19 @@ function closePlayer() {
 
 function openInTelegram() {
   if (!currentTrack) return;
-  // Пересылаем трек через бота в личку
-  if (tg && currentTrack.file_id) {
+  if (tg?.sendData && tg.initData) {
+    // Внутри Telegram WebApp — отправляем данные боту
     tg.sendData(JSON.stringify({ action: 'open_in_tg', file_id: currentTrack.file_id }));
   } else if (botUsername) {
-    window.open(`https://t.me/${botUsername}`, '_blank');
+    // Вне Telegram — открываем inline-запрос: бот пришлёт трек в личку
+    const query = encodeURIComponent(`${currentTrack.artist} ${currentTrack.title}`);
+    window.open(`https://t.me/${botUsername}?start=track_${encodeURIComponent(currentTrack.file_id)}`, '_blank');
   } else {
-    toast('Открой в Telegram');
+    toast('Загрузка...');
+    fetchBotUsername().then(() => {
+      if (botUsername) openInTelegram();
+      else toast('Не удалось получить имя бота');
+    });
   }
 }
 
@@ -859,10 +899,8 @@ function x(s) {
   if (BOT_API) {
     await checkConnection();
     fetchBotUsername();
-    loadTab('home');
-  } else {
-    showApiSetup();
   }
+  loadTab('home');
 })();
 </script>
 </body>

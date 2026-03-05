@@ -31,11 +31,6 @@ body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }
-#app {
-  max-width: 600px;
-  margin: 0 auto;
-  position: relative;
-}
 
 .header {
   position: sticky; top: 0; z-index: 200;
@@ -246,7 +241,6 @@ body {
   border-top: 1px solid rgba(255,255,255,0.06);
   transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
   padding-bottom: env(safe-area-inset-bottom);
-  max-width: 600px; margin: 0 auto;
 }
 .player.show { transform: translateY(0); }
 
@@ -317,12 +311,12 @@ body {
 
 /* Lyrics modal */
 .lyrics-modal {
-  position: fixed; inset: 0; z-index: 600; max-width: 600px; left: 50%; transform: translateX(-50%) translateY(100%);
+  position: fixed; inset: 0; z-index: 600;
   background: rgba(0,0,0,0.85); backdrop-filter: blur(20px);
   display: flex; flex-direction: column;
   transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
 }
-.lyrics-modal.show { transform: translateX(-50%) translateY(0); }
+.lyrics-modal.show { transform: translateY(0); }
 .lyrics-header {
   display: flex; align-items: center; justify-content: space-between;
   padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.06);
@@ -341,6 +335,161 @@ body {
 
 .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text3); flex-shrink: 0; transition: background 0.3s; }
 .status-dot.online { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+/* ── STUDIO ── */
+.studio-search-wrap {
+  display: flex; gap: 8px; margin-bottom: 16px;
+}
+.studio-search-input {
+  flex: 1; padding: 10px 14px;
+  background: var(--surface2); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 100px; color: var(--text); font-size: 14px;
+  font-family: 'Inter', sans-serif; outline: none;
+  transition: border-color 0.2s;
+}
+.studio-search-input:focus { border-color: var(--accent); }
+.studio-search-btn {
+  padding: 10px 18px; background: var(--accent); border: none;
+  border-radius: 100px; color: #000; font-size: 13px; font-weight: 700;
+  font-family: 'Inter', sans-serif; cursor: pointer; white-space: nowrap;
+  transition: opacity 0.15s;
+}
+.studio-search-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.studio-result {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.studio-result:last-child { border-bottom: none; }
+.studio-thumb {
+  width: 46px; height: 46px; border-radius: var(--radius-sm);
+  background: var(--surface2); flex-shrink: 0; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+.studio-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.studio-result-info { flex: 1; min-width: 0; }
+.studio-result-artist { font-size: 11px; color: var(--text2); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.studio-result-title  { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.studio-result-meta   { font-size: 10px; color: var(--text3); margin-top: 2px; }
+.studio-add-btn {
+  width: 34px; height: 34px; border-radius: 50%; border: none;
+  background: var(--accent); color: #000; font-size: 18px; font-weight: 700;
+  cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  transition: transform 0.15s, opacity 0.15s;
+}
+.studio-add-btn:active { transform: scale(0.9); }
+.studio-add-btn.done   { background: var(--surface3); color: var(--text3); cursor: default; font-size: 14px; }
+.studio-add-btn.in-arc { background: var(--surface3); color: var(--text3); cursor: default; font-size: 14px; }
+
+/* Job cards */
+.job-card {
+  background: var(--surface); border-radius: var(--radius);
+  border: 1px solid rgba(255,255,255,0.06);
+  padding: 14px; margin-bottom: 10px;
+  transition: border-color 0.3s;
+}
+.job-card.ready  { border-color: rgba(200,245,58,0.35); }
+.job-card.error  { border-color: rgba(255,80,80,0.35); }
+.job-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.job-card-info   { flex: 1; min-width: 0; }
+.job-card-artist { font-size: 11px; color: var(--text2); }
+.job-card-title  { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.job-step        { font-size: 12px; color: var(--text2); margin-bottom: 10px; min-height: 18px; }
+.job-progress    { height: 3px; background: var(--surface3); border-radius: 2px; overflow: hidden; margin-bottom: 10px; }
+.job-progress-fill {
+  height: 100%; background: var(--accent); border-radius: 2px;
+  width: 0%; transition: width 0.4s ease;
+  animation: progress-pulse 1.5s ease-in-out infinite;
+}
+.job-card.ready  .job-progress-fill { width: 100%; animation: none; }
+.job-card.error  .job-progress-fill { width: 100%; background: #ff5050; animation: none; }
+@keyframes progress-pulse {
+  0%, 100% { opacity: 1; } 50% { opacity: 0.6; }
+}
+.job-actions     { display: flex; gap: 8px; }
+.job-publish-btn {
+  flex: 1; height: 36px; border-radius: 100px;
+  background: var(--accent); border: none; color: #000;
+  font-size: 13px; font-weight: 700; font-family: 'Inter', sans-serif;
+  cursor: pointer; transition: opacity 0.15s;
+}
+.job-publish-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.job-dismiss-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--surface2); border: none; color: var(--text2);
+  font-size: 16px; cursor: pointer;
+}
+
+/* Edit track modal */
+.edit-modal {
+  position: fixed; inset: 0; z-index: 700;
+  background: rgba(0,0,0,0.7); backdrop-filter: blur(10px);
+  display: flex; align-items: flex-end;
+  opacity: 0; pointer-events: none; transition: opacity 0.25s;
+}
+.edit-modal.show { opacity: 1; pointer-events: all; }
+.edit-sheet {
+  width: 100%; background: var(--surface);
+  border-radius: var(--radius) var(--radius) 0 0;
+  padding: 20px 20px calc(20px + env(safe-area-inset-bottom));
+  transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+.edit-modal.show .edit-sheet { transform: translateY(0); }
+.edit-sheet-title { font-family: 'Unbounded', sans-serif; font-size: 14px; font-weight: 700; margin-bottom: 16px; }
+.edit-field { margin-bottom: 12px; }
+.edit-label { font-size: 11px; color: var(--text2); margin-bottom: 4px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+.edit-input {
+  width: 100%; padding: 10px 12px;
+  background: var(--surface2); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius-sm); color: var(--text); font-size: 14px;
+  font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s;
+}
+.edit-input:focus { border-color: var(--accent); }
+.edit-actions { display: flex; gap: 8px; margin-top: 16px; }
+.edit-save-btn {
+  flex: 1; height: 42px; background: var(--accent); border: none;
+  border-radius: 100px; color: #000; font-size: 14px; font-weight: 700;
+  font-family: 'Inter', sans-serif; cursor: pointer;
+}
+.edit-cancel-btn {
+  height: 42px; padding: 0 20px; background: var(--surface2); border: none;
+  border-radius: 100px; color: var(--text2); font-size: 14px;
+  font-family: 'Inter', sans-serif; cursor: pointer;
+}
+
+/* Playlist picker sheet */
+.pl-sheet {
+  position: fixed; inset: 0; z-index: 710;
+  background: rgba(0,0,0,0.7); backdrop-filter: blur(10px);
+  display: flex; align-items: flex-end;
+  opacity: 0; pointer-events: none; transition: opacity 0.25s;
+}
+.pl-sheet.show { opacity: 1; pointer-events: all; }
+.pl-sheet-inner {
+  width: 100%; background: var(--surface);
+  border-radius: var(--radius) var(--radius) 0 0;
+  padding: 20px 20px calc(20px + env(safe-area-inset-bottom));
+  transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+.pl-sheet.show .pl-sheet-inner { transform: translateY(0); }
+.pl-sheet-title { font-family: 'Unbounded', sans-serif; font-size: 14px; font-weight: 700; margin-bottom: 14px; }
+.pl-option {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  padding: 12px; border-radius: var(--radius-sm);
+  background: none; border: none; color: var(--text);
+  font-size: 14px; cursor: pointer; text-align: left;
+  transition: background 0.15s;
+}
+.pl-option:active { background: var(--surface2); }
+.pl-option-count { font-size: 11px; color: var(--text3); margin-left: auto; }
+
+.studio-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+.studio-subtab {
+  padding: 6px 14px; border-radius: 100px; border: none;
+  font-size: 12px; font-weight: 600; font-family: 'Inter', sans-serif;
+  cursor: pointer; background: var(--surface2); color: var(--text2);
+  transition: all 0.2s;
+}
+.studio-subtab.active { background: var(--surface3); color: var(--text); }
 </style>
 </head>
 <body>
@@ -359,6 +508,7 @@ body {
     <button class="tab" onclick="switchTab('playlists',this)">Плейлисты</button>
     <button class="tab" onclick="switchTab('recent',this)">Новинки</button>
     <button class="tab" onclick="switchTab('favorites',this)">Избранное</button>
+    <button class="tab" id="studioTab" style="display:none" onclick="switchTab('studio',this)">🎛 Студия</button>
   </div>
   <div class="search-header" id="searchHeader">
     <button class="back-btn-search" onclick="closeSearch()">←</button>
@@ -370,7 +520,6 @@ body {
   </div>
 </div>
 
-<div id="app">
 <div id="mainView">
   <div class="content" id="tabContent">
     <div class="loading"><div class="spinner"></div></div>
@@ -392,7 +541,6 @@ body {
 </div>
 
 <!-- PLAYER -->
-</div>
 <div class="player" id="player">
   <div class="player-seek" id="playerSeek" onmousedown="seekStart(event)" ontouchstart="seekStart(event)">
     <div class="player-seek-track">
@@ -483,7 +631,7 @@ async function api(path) {
 async function autoFetchTunnelUrl() {
   // Cloudflare Worker — фиксированный URL, бот пишет туда туннель при старте
   // Быстро (<100ms), бесплатно, не трогает GitHub
-  const WORKER_URL = 'https://mab-tunnel.witargame.workers.dev';
+  const WORKER_URL = 'https://mab-tunnel.lordo.workers.dev';
 
   try {
     const r = await fetch(WORKER_URL, {
@@ -543,8 +691,16 @@ async function applyApiUrl() {
   localStorage.setItem('mab_api_url', url);
   toast('Проверяю...');
   const ok = await checkConnection();
-  if (ok) { toast('Подключено'); setTimeout(() => loadTab(currentTab), 600); }
-  else toast('Сервер не отвечает');
+  if (ok) {
+    toast('Подключено ✓');
+    fetchBotUsername();
+    // Явно переключаемся на home — убираем экран настроек
+    document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === 0));
+    currentTab = 'home';
+    loadTab('home');
+  } else {
+    toast('Сервер не отвечает');
+  }
 }
 
 // ── NAV ──────────────────────────────────────
@@ -565,6 +721,7 @@ async function loadTab(tab) {
   else if (tab === 'playlists') await renderPlaylists(el);
   else if (tab === 'recent')    await renderRecent(el);
   else if (tab === 'favorites') await renderFavorites(el);
+  else if (tab === 'studio')    await renderStudio(el);
 }
 
 // ── HOME ─────────────────────────────────────
@@ -839,6 +996,8 @@ audio.addEventListener('timeupdate', function() {
   const pct = (audio.currentTime / audio.duration) * 100;
   document.getElementById('playerFill').style.width = pct + '%';
   document.getElementById('timeCurrent').textContent = fmtTime(audio.currentTime);
+  // Синхронизируем прогресс с системным плеером (каждые ~1 сек)
+  if (Math.round(audio.currentTime) % 2 === 0) _syncPositionState();
 });
 audio.addEventListener('loadedmetadata', function() {
   document.getElementById('timeDuration').textContent = fmtTime(audio.duration);
@@ -850,8 +1009,17 @@ audio.addEventListener('ended', function() {
     playTrack(currentPlaylist[next], next);
   }
 });
-audio.addEventListener('playing', function() { setPlayIcon(true); });
-audio.addEventListener('pause', function() { setPlayIcon(false); });
+audio.addEventListener('playing', function() {
+  setPlayIcon(true);
+  if ('mediaSession' in navigator) {
+    navigator.mediaSession.playbackState = 'playing';
+    _syncPositionState();
+  }
+});
+audio.addEventListener('pause', function() {
+  setPlayIcon(false);
+  if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
+});
 let _streamRetries = 0;
 audio.addEventListener('error', function() {
   if (!audio.src || audio.src === window.location.href) return;
@@ -921,16 +1089,68 @@ function playTrack(t, idx) {
     }
   });
   document.body.style.paddingBottom = '150px';
-  if ('mediaSession' in navigator) {
-    navigator.mediaSession.metadata = new MediaMetadata({
-      title: t.title || '', artist: t.artist || '',
-      artwork: coverUrl ? [{src: coverUrl, sizes: '512x512', type: 'image/jpeg'}] : []
-    });
-    navigator.mediaSession.setActionHandler('play', function() { audio.play(); });
-    navigator.mediaSession.setActionHandler('pause', function() { audio.pause(); });
-    navigator.mediaSession.setActionHandler('previoustrack', function() { skipTrack(-1); });
-    navigator.mediaSession.setActionHandler('nexttrack', function() { skipTrack(1); });
+  updateMediaSession(t, coverUrl);
+}
+
+// ── MEDIA SESSION (системный плеер телефона) ──────────────────────────────
+
+function updateMediaSession(t, coverUrl) {
+  if (!('mediaSession' in navigator)) return;
+
+  // Artwork: Media Session требует абсолютный URL
+  var artwork = [];
+  if (coverUrl) {
+    // Если URL относительный или data: — берём как есть, иначе нужен абсолютный
+    var absUrl = coverUrl.startsWith('http') || coverUrl.startsWith('data:')
+      ? coverUrl
+      : (window.location.origin + coverUrl);
+    artwork = [
+      { src: absUrl, sizes: '96x96',   type: 'image/jpeg' },
+      { src: absUrl, sizes: '256x256', type: 'image/jpeg' },
+      { src: absUrl, sizes: '512x512', type: 'image/jpeg' },
+    ];
   }
+
+  navigator.mediaSession.metadata = new MediaMetadata({
+    title:  t.title  || '',
+    artist: t.artist || '',
+    album:  [t.year, t.genre].filter(Boolean).join(' · ') || 'Music Archive',
+    artwork: artwork
+  });
+
+  // Кнопки управления
+  navigator.mediaSession.setActionHandler('play',          function() { audio.play(); });
+  navigator.mediaSession.setActionHandler('pause',         function() { audio.pause(); });
+  navigator.mediaSession.setActionHandler('stop',          function() { closePlayer(); });
+  navigator.mediaSession.setActionHandler('previoustrack', function() { skipTrack(-1); });
+  navigator.mediaSession.setActionHandler('nexttrack',     function() { skipTrack(1); });
+
+  // Перемотка (+/- 10 сек и seekto по таймлайну)
+  navigator.mediaSession.setActionHandler('seekbackward', function(d) {
+    audio.currentTime = Math.max(0, audio.currentTime - (d.seekOffset || 10));
+    _syncPositionState();
+  });
+  navigator.mediaSession.setActionHandler('seekforward', function(d) {
+    audio.currentTime = Math.min(audio.duration || 0, audio.currentTime + (d.seekOffset || 10));
+    _syncPositionState();
+  });
+  navigator.mediaSession.setActionHandler('seekto', function(d) {
+    if (d.seekTime !== undefined && audio.duration) {
+      audio.currentTime = d.seekTime;
+      _syncPositionState();
+    }
+  });
+}
+
+function _syncPositionState() {
+  if (!('mediaSession' in navigator) || !audio.duration) return;
+  try {
+    navigator.mediaSession.setPositionState({
+      duration:     audio.duration,
+      playbackRate: audio.playbackRate || 1,
+      position:     Math.min(audio.currentTime, audio.duration)
+    });
+  } catch(e) {}
 }
 
 function setPlayContext(tracks, startIdx) {
@@ -969,6 +1189,10 @@ function closePlayer() {
   document.getElementById('playerFill').style.width = '0%';
   document.getElementById('timeCurrent').textContent = '0:00';
   document.getElementById('timeDuration').textContent = '0:00';
+  if ('mediaSession' in navigator) {
+    navigator.mediaSession.playbackState = 'none';
+    navigator.mediaSession.metadata = null;
+  }
 }
 
 function setVolume(val) {
@@ -1089,10 +1313,395 @@ function x(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// ── INIT ─────────────────────────────────────
+
+// ══════════════════════════════════════════════
+//  STUDIO
+// ══════════════════════════════════════════════
+
+let _studioSubtab  = 'search';  // search | tracks
+let _studioJobs    = {};        // job_id → job data
+let _studioPollers = {};        // job_id → interval id
+let _editTrackId   = null;
+let _plSheetJobId  = null;
+let _studioResults = [];        // текущие результаты поиска
+
+// Инициализация: показываем вкладку только если пользователь — админ
+function _initStudio() {
+  const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+  if (!tgUser) return;
+  // ADMIN_IDS проверяем на бэке, здесь просто показываем вкладку всем
+  // (бэк отклонит если не админ)
+  document.getElementById('studioTab').style.display = '';
+}
+
+async function renderStudio(el) {
+  el.innerHTML = `
+    <div class="studio-tabs">
+      <button class="studio-subtab ${_studioSubtab==='search'?'active':''}"
+              onclick="studioSubtab('search',this)">🔍 Поиск</button>
+      <button class="studio-subtab ${_studioSubtab==='tracks'?'active':''}"
+              onclick="studioSubtab('tracks',this)">🎵 Треки</button>
+    </div>
+    <div id="studioSubContent"></div>`;
+  renderStudioSub();
+}
+
+function studioSubtab(name, btn) {
+  _studioSubtab = name;
+  document.querySelectorAll('.studio-subtab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderStudioSub();
+}
+
+function renderStudioSub() {
+  const el = document.getElementById('studioSubContent');
+  if (!el) return;
+  if (_studioSubtab === 'search') renderStudioSearch(el);
+  else renderStudioTracks(el);
+}
+
+// ── Поиск ──────────────────────────────────────
+
+function renderStudioSearch(el) {
+  // Активные джобы
+  const jobCards = Object.values(_studioJobs)
+    .sort((a, b) => b.created_at - a.created_at)
+    .map(j => buildJobCard(j))
+    .join('');
+
+  const resultsHtml = _studioResults.length
+    ? _studioResults.map(buildStudioResult).join('')
+    : '<div class="search-hint">Введи запрос чтобы найти треки</div>';
+
+  el.innerHTML = `
+    <div class="studio-search-wrap">
+      <input class="studio-search-input" id="studioQ" type="search"
+             placeholder="Артист — Название..." autocomplete="off"
+             onkeydown="if(event.key==='Enter')studioDoSearch()">
+      <button class="studio-search-btn" id="studioBtn" onclick="studioDoSearch()">Найти</button>
+    </div>
+    ${jobCards ? `<div class="section-title">Активные загрузки</div>${jobCards}` : ''}
+    <div id="studioResults">${_studioResults.length ? '<div class="section-title">Результаты</div>' + resultsHtml : resultsHtml}</div>`;
+}
+
+async function studioDoSearch() {
+  const q = (document.getElementById('studioQ')?.value || '').trim();
+  if (!q) return;
+  const btn = document.getElementById('studioBtn');
+  const res = document.getElementById('studioResults');
+  if (btn) btn.disabled = true;
+  if (res) res.innerHTML = '<div class="loading"><div class="spinner"></div><span>Ищу на SoundCloud / YouTube...</span></div>';
+
+  try {
+    const r = await studioApi(`/studio/search?q=${encodeURIComponent(q)}&limit=10`);
+    if (!r || r.error) {
+      if (res) res.innerHTML = `<div class="empty"><div class="empty-text">${r?.error || 'Ошибка'}</div></div>`;
+      return;
+    }
+    _studioResults = r;
+    if (res) {
+      res.innerHTML = r.length
+        ? `<div class="section-title">${r.length} результатов</div>` + r.map(buildStudioResult).join('')
+        : '<div class="empty"><div class="empty-text">Ничего не найдено</div></div>';
+    }
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
+function buildStudioResult(item, idx) {
+  const dur = item.duration ? fmtTime(item.duration) : '';
+  const src = item.source === 'soundcloud' ? '☁️ SC' : item.source === 'youtube' ? '▶️ YT' : item.source;
+  const inArc = item.in_archive;
+  const btnHtml = inArc
+    ? `<div class="studio-add-btn in-arc" title="Уже в архиве">✓</div>`
+    : `<button class="studio-add-btn" onclick="studioAddTrack(${idx})" title="Добавить в архив">+</button>`;
+  const thumb = item.thumbnail
+    ? `<img src="${x(item.thumbnail)}" loading="lazy" onerror="this.remove()">`
+    : `<svg width="18" height="18" viewBox="0 0 24 24" fill="var(--text3)"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/></svg>`;
+  return `
+    <div class="studio-result" id="sr_${idx}">
+      <div class="studio-thumb">${thumb}</div>
+      <div class="studio-result-info">
+        <div class="studio-result-artist">${x(item.artist)}</div>
+        <div class="studio-result-title">${x(item.title)}</div>
+        <div class="studio-result-meta">${[src, dur].filter(Boolean).join(' · ')}</div>
+      </div>
+      ${btnHtml}
+    </div>`;
+}
+
+async function studioAddTrack(idx) {
+  const item = _studioResults[idx];
+  if (!item || item.in_archive) return;
+
+  // Помечаем кнопку как загружающуюся
+  const row = document.getElementById(`sr_${idx}`);
+  const btn = row?.querySelector('.studio-add-btn');
+  if (btn) { btn.textContent = '⏳'; btn.disabled = true; btn.style.opacity = '0.6'; }
+
+  const r = await studioApi('/studio/add', 'POST', {
+    url:    item.url,
+    artist: item.artist,
+    title:  item.title,
+  });
+
+  if (!r || r.error) {
+    toast(r?.message || r?.error || 'Ошибка запуска');
+    if (btn) { btn.textContent = '+'; btn.disabled = false; btn.style.opacity = ''; }
+    return;
+  }
+
+  // Стартуем job
+  const job = {
+    job_id:     r.job_id,
+    status:     'queued',
+    step:       '⏳ В очереди...',
+    artist:     item.artist,
+    title:      item.title,
+    created_at: Date.now(),
+  };
+  _studioJobs[r.job_id] = job;
+  _startJobPoller(r.job_id);
+
+  // Помечаем результат
+  item.in_archive = true;
+  if (btn) { btn.textContent = '✓'; btn.classList.add('done'); btn.disabled = true; }
+
+  // Перерисовываем раздел с джобами
+  renderStudioSub();
+  toast(`⬇️ Начинаю: ${item.artist} — ${item.title}`);
+}
+
+// ── Job cards ───────────────────────────────────
+
+function buildJobCard(job) {
+  const statusClass = job.status === 'ready' ? 'ready' : job.status === 'error' ? 'error' : '';
+  const progress = {
+    queued:  5,
+    running: _stepProgress(job.step),
+    ready:   100,
+    error:   100,
+  }[job.status] || 5;
+
+  const publishBtn = job.status === 'ready'
+    ? `<button class="job-publish-btn" onclick="openPlSheet('${job.job_id}')">📤 Опубликовать</button>`
+    : `<button class="job-publish-btn" disabled>📤 Опубликовать</button>`;
+  const dismissBtn = (job.status === 'ready' || job.status === 'error')
+    ? `<button class="job-dismiss-btn" onclick="dismissJob('${job.job_id}')" title="Убрать">✕</button>`
+    : '';
+
+  return `
+    <div class="job-card ${statusClass}" id="job_${job.job_id}">
+      <div class="job-card-header">
+        <div class="job-card-info">
+          <div class="job-card-artist">${x(job.artist)}</div>
+          <div class="job-card-title">${x(job.title)}</div>
+        </div>
+      </div>
+      <div class="job-step" id="jstep_${job.job_id}">${x(job.step)}</div>
+      <div class="job-progress"><div class="job-progress-fill" id="jprog_${job.job_id}" style="width:${progress}%"></div></div>
+      <div class="job-actions">
+        ${publishBtn}
+        ${dismissBtn}
+      </div>
+    </div>`;
+}
+
+function _stepProgress(step) {
+  if (!step) return 10;
+  if (step.includes('Скачива')) return 20;
+  if (step.includes('метаданн')) return 40;
+  if (step.includes('обложк'))  return 55;
+  if (step.includes('MP3'))     return 70;
+  if (step.includes('текст'))   return 85;
+  if (step.includes('Telegram')) return 95;
+  return 10;
+}
+
+function _startJobPoller(job_id) {
+  if (_studioPollers[job_id]) return;
+  _studioPollers[job_id] = setInterval(async () => {
+    const r = await studioApi(`/studio/job/${job_id}`);
+    if (!r || r.error) return;
+
+    _studioJobs[job_id] = { ..._studioJobs[job_id], ...r, created_at: _studioJobs[job_id]?.created_at || Date.now() };
+
+    // Обновляем карточку без полной перерисовки
+    const stepEl = document.getElementById(`jstep_${job_id}`);
+    const progEl = document.getElementById(`jprog_${job_id}`);
+    const card   = document.getElementById(`job_${job_id}`);
+
+    if (stepEl) stepEl.textContent = r.step || '';
+    if (progEl) {
+      const pct = r.status === 'ready' ? 100 : r.status === 'error' ? 100 : _stepProgress(r.step);
+      progEl.style.width = pct + '%';
+    }
+    if (card) {
+      card.classList.toggle('ready', r.status === 'ready');
+      card.classList.toggle('error', r.status === 'error');
+    }
+
+    // Когда готово — обновляем кнопку публикации
+    if (r.status === 'ready' || r.status === 'error') {
+      clearInterval(_studioPollers[job_id]);
+      delete _studioPollers[job_id];
+      // Перерисуем карточку полностью чтобы показать правильные кнопки
+      if (card) card.outerHTML = buildJobCard(_studioJobs[job_id]);
+      if (r.status === 'ready') toast(`✅ ${r.artist} — ${r.title} готов!`);
+      if (r.status === 'error') toast(`❌ Ошибка: ${r.error}`);
+    }
+  }, 2500);
+}
+
+function dismissJob(job_id) {
+  if (_studioPollers[job_id]) {
+    clearInterval(_studioPollers[job_id]);
+    delete _studioPollers[job_id];
+  }
+  delete _studioJobs[job_id];
+  const card = document.getElementById(`job_${job_id}`);
+  if (card) card.remove();
+}
+
+// ── Playlist sheet ──────────────────────────────
+
+function openPlSheet(job_id) {
+  _plSheetJobId = job_id;
+  const opts = document.getElementById('plSheetOptions');
+  const pls  = playlists || [];
+  opts.innerHTML =
+    `<button class="pl-option" onclick="publishJob(null)">
+       <span>📤</span> <span style="flex:1">Без плейлиста</span>
+     </button>` +
+    pls.map(pl => `
+      <button class="pl-option" onclick="publishJob(${pl.id})">
+        <span>📂</span>
+        <span style="flex:1">${x(pl.name)}</span>
+        <span class="pl-option-count">${pl.track_count}</span>
+      </button>`).join('');
+  document.getElementById('plSheet').classList.add('show');
+}
+
+function closePlSheet() {
+  document.getElementById('plSheet').classList.remove('show');
+  _plSheetJobId = null;
+}
+
+async function publishJob(playlist_id) {
+  closePlSheet();
+  const job_id = _plSheetJobId || Object.keys(_studioJobs).find(
+    id => _studioJobs[id].status === 'ready'
+  );
+  if (!job_id) return;
+
+  toast('📤 Публикую...');
+  const r = await studioApi('/studio/publish', 'POST', { job_id, playlist_id });
+
+  if (r?.ok) {
+    toast(r.message || '✅ Опубликовано!');
+    dismissJob(job_id);
+    // Обновляем список плейлистов
+    playlists = await api('/playlists') || playlists;
+  } else {
+    toast(`❌ ${r?.error || 'Ошибка публикации'}`);
+  }
+}
+
+// ── Треки с редактированием ─────────────────────
+
+async function renderStudioTracks(el) {
+  el.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+  const tracks = await api('/tracks/recent?limit=100');
+  if (!tracks?.length) { el.innerHTML = '<div class="empty"><div class="empty-text">Треков нет</div></div>'; return; }
+
+  el.innerHTML = `<div class="section-title">${tracks.length} треков в архиве</div>` +
+    tracks.map(t => `
+      <div class="studio-result">
+        <div class="studio-thumb">
+          ${t.cover
+            ? `<img src="${x(getCoverUrl(t) || '')}" loading="lazy" onerror="this.remove()">`
+            : `<svg width="18" height="18" viewBox="0 0 24 24" fill="var(--text3)"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/></svg>`}
+        </div>
+        <div class="studio-result-info">
+          <div class="studio-result-artist">${x(t.artist)}</div>
+          <div class="studio-result-title">${x(t.title)}</div>
+          <div class="studio-result-meta">${[t.year, t.genre].filter(Boolean).join(' · ') || '—'}</div>
+        </div>
+        <button class="icon-btn" onclick="openEditModal(${t.id},'${x(t.artist)}','${x(t.title)}','${x(t.year||'')}','${x(t.genre||'')}')">✏️</button>
+      </div>`).join('');
+}
+
+// ── Edit modal ──────────────────────────────────
+
+function openEditModal(id, artist, title, year, genre) {
+  _editTrackId = id;
+  document.getElementById('editArtist').value = artist;
+  document.getElementById('editTitle').value  = title;
+  document.getElementById('editYear').value   = year;
+  document.getElementById('editGenre').value  = genre;
+  document.getElementById('editModal').classList.add('show');
+}
+
+function closeEditModal() {
+  document.getElementById('editModal').classList.remove('show');
+  _editTrackId = null;
+}
+
+async function saveTrackEdit() {
+  if (!_editTrackId) return;
+  const updates = {
+    artist: document.getElementById('editArtist').value.trim(),
+    title:  document.getElementById('editTitle').value.trim(),
+    year:   document.getElementById('editYear').value.trim() || null,
+    genre:  document.getElementById('editGenre').value.trim() || null,
+  };
+  if (!updates.artist || !updates.title) { toast('Артист и название обязательны'); return; }
+
+  const r = await studioApi(`/studio/tracks/${_editTrackId}`, 'PUT', updates);
+  if (r?.ok) {
+    toast('✅ Сохранено');
+    closeEditModal();
+    // Перерисовываем список треков
+    const el = document.getElementById('studioSubContent');
+    if (el && _studioSubtab === 'tracks') renderStudioTracks(el);
+  } else {
+    toast(`❌ ${r?.error || 'Ошибка'}`);
+  }
+}
+
+// ── API helper с initData авторизацией ──────────
+
+async function studioApi(path, method = 'GET', body = null) {
+  if (!BOT_API) { toast('Нет подключения к серверу'); return null; }
+  const initData = window.Telegram?.WebApp?.initData || '';
+  try {
+    const opts = {
+      method,
+      headers: {
+        'Content-Type':      'application/json',
+        'X-Tg-Init-Data':    initData,
+        'bypass-tunnel-reminder': '1',
+      },
+      signal: AbortSignal.timeout(60000),
+    };
+    if (body) opts.body = JSON.stringify(body);
+    const r = await fetch(`${BOT_API}${path}`, opts);
+    return await r.json();
+  } catch(e) {
+    console.warn('studioApi:', e);
+    return null;
+  }
+}
+
+// ══════════════════════════════════════════════
+//  ПАТЧ switchTab — добавляем studio
+// ══════════════════════════════════════════════
+
 
 (async () => {
   setVolume(100);
+  _initStudio();
   await autoFetchTunnelUrl();
   if (BOT_API) {
     await checkConnection();
@@ -1117,5 +1726,42 @@ function x(s) {
     <div class="lyrics-loading">Загрузка...</div>
   </div>
 </div>
+<!-- Edit track modal -->
+<div class="edit-modal" id="editModal" onclick="if(event.target===this)closeEditModal()">
+  <div class="edit-sheet">
+    <div class="edit-sheet-title">✏️ Редактировать трек</div>
+    <div class="edit-field">
+      <div class="edit-label">Артист</div>
+      <input class="edit-input" id="editArtist" type="text" placeholder="Артист">
+    </div>
+    <div class="edit-field">
+      <div class="edit-label">Название</div>
+      <input class="edit-input" id="editTitle" type="text" placeholder="Название">
+    </div>
+    <div style="display:flex;gap:10px">
+      <div class="edit-field" style="flex:1">
+        <div class="edit-label">Год</div>
+        <input class="edit-input" id="editYear" type="text" placeholder="2024" maxlength="4">
+      </div>
+      <div class="edit-field" style="flex:2">
+        <div class="edit-label">Жанр</div>
+        <input class="edit-input" id="editGenre" type="text" placeholder="Hip-Hop">
+      </div>
+    </div>
+    <div class="edit-actions">
+      <button class="edit-cancel-btn" onclick="closeEditModal()">Отмена</button>
+      <button class="edit-save-btn" onclick="saveTrackEdit()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<!-- Playlist picker sheet -->
+<div class="pl-sheet" id="plSheet" onclick="if(event.target===this)closePlSheet()">
+  <div class="pl-sheet-inner">
+    <div class="pl-sheet-title">📂 Выбери плейлист</div>
+    <div id="plSheetOptions"></div>
+  </div>
+</div>
+
 </body>
 </html>

@@ -442,6 +442,19 @@ async function checkConnection() {
 
 // ── DIAG PANEL ───────────────────────────────
 
+async function runServerDiag() {
+  if (!BOT_API) { toast('Сначала введи URL'); return; }
+  diagLog('=== SERVER DIAG START ===');
+  const res = await diagFetch('/debug', BOT_API + '/debug');
+  showDiagLog();
+  if (res.ok) {
+    diagLog('--- Server diag results ---');
+    for (const [k, v] of Object.entries(res.data)) {
+      diagLog(k, v);
+    }
+  }
+}
+
 function showDiagLog() {
   const existing = document.getElementById('diagPanel');
   if (existing) { existing.remove(); return; }
@@ -488,6 +501,7 @@ function showApiSetup(errorMsg) {
       <button class="setup-btn" onclick="applyApiUrl()">Сохранить и подключиться</button>
       ${BOT_API ? `<button class="setup-btn" style="margin-top:8px;background:var(--surface2);color:var(--text)" onclick="retryConnection()">↻ Повторить попытку</button>` : ''}
       <button class="setup-btn" style="margin-top:8px;background:transparent;border:1px solid #2a2a2a;color:var(--text2);font-size:13px" onclick="showDiagLog()">🔍 Лог диагностики</button>
+      <button class="setup-btn" style="margin-top:8px;background:transparent;border:1px solid #2a2a2a;color:#c8f53a;font-size:13px" onclick="runServerDiag()">⚙️ Диагностика сервера</button>
     </div>`;
 }
 

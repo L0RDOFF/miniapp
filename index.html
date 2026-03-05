@@ -364,41 +364,50 @@ let searchOpen  = false;
 
 // ── API ──────────────────────────────────────
 
+let _apiFailCount = 0;
+
 async function api(path) {
   if (!BOT_API) return null;
   try {
     const sep = path.includes('?') ? '&' : '?';
     const r = await fetch(`${BOT_API}${path}${sep}_=${Date.now()}`, {
       signal: AbortSignal.timeout(8000),
-      headers: { 'ngrok-skip-browser-warning': '1', 'bypass-tunnel-reminder': '1' }
+      headers: { 'bypass-tunnel-reminder': '1', 'ngrok-skip-browser-warning': '1' }
     });
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    _apiFailCount = 0;
     return await r.json();
-  } catch(e) { console.warn('API:', e.message); return null; }
+  } catch(e) {
+    console.warn('API:', e.message);
+    _apiFailCount++;
+    // После 2 подряд ошибок — сбрасываем URL и показываем экран настройки
+    if (_apiFailCount >= 2) {
+      _apiFailCount = 0;
+      BOT_API = '';
+      localStorage.removeItem('mab_api_url');
+      showApiSetup();
+    }
+    return null;
+  }
 }
 
 async function autoFetchTunnelUrl() {
-  // Никогда не затираем рабочий BOT_API если сервер не ответил
-  const headers = { 'ngrok-skip-browser-warning': '1', 'bypass-tunnel-reminder': '1' };
-  const base = BOT_API || 'http://localhost:8080';
-  try {
-    const r = await fetch(`${base}/tunnel-url`, { signal: AbortSignal.timeout(3000), headers });
-    if (!r.ok) return;
-    const data = await r.json();
-    // Обновляем только если пришёл валидный URL
-    if (data.url && data.url.startsWith('http')) {
-      if (data.url !== BOT_API) {
-        BOT_API = data.url;
-        localStorage.setItem('mab_api_url', data.url);
-      }
-    } else if (!BOT_API) {
-      // Файл туннеля ещё не создан, но сервер отвечает — используем localhost
-      BOT_API = base;
-      localStorage.setItem('mab_api_url', base);
-    }
-  } catch(e) {
-    // Сеть недоступна — ничего не меняем
+  // Сначала проверяем актуальность сохранённого URL (он меняется при каждом запуске cloudflared)
+  if (BOT_API) {
+    try {
+      const r = await fetch(`${BOT_API}/health`, {
+        signal: AbortSignal.timeout(4000),
+        headers: { 'bypass-tunnel-reminder': '1' }
+      });
+      if (r.ok) return; // URL актуален, всё хорошо
+    } catch(e) {}
+    // Сохранённый URL не отвечает — сбрасываем
+    console.warn('Сохранённый API URL недоступен, сбрасываем...');
+    BOT_API = '';
+    localStorage.removeItem('mab_api_url');
   }
+  // URL не задан или устарел — показываем экран настройки
+  // (localhost недоступен из браузера на другом устройстве)
 }
 
 async function checkConnection() {
@@ -409,7 +418,7 @@ async function checkConnection() {
 
 // ── SETUP ────────────────────────────────────
 
-function showApiSetup() {
+function showApiSetup(errorMsg) {
   closeSearch();
   closeDetail();
   document.getElementById('mainView').style.display = 'block';
@@ -418,14 +427,23 @@ function showApiSetup() {
     <div class="setup-screen">
       <div class="setup-title">Подключение</div>
       <div class="setup-desc">
-        Запусти <code style="color:var(--accent)">start.bat</code> — URL обновится автоматически.<br><br>
-        Или вставь URL из окна cloudflared вручную:
-        <div class="setup-code">cloudflared tunnel --url http://localhost:8080 --protocol http2</div>
+        ${errorMsg ? `<div style="color:#ff6b6b;margin-bottom:12px;font-size:13px">⚠️ ${errorMsg}</div>` : ''}
+        Каждый запуск <code style="color:var(--accent)">start.bat</code> создаёт <b>новый</b> URL туннеля.
+        Скопируй его из окна cloudflared и вставь ниже:<br><br>
+        <div class="setup-code">Выгляди как: https://xxxx-xxxx-xxxx.trycloudflare.com</div>
       </div>
       <input id="apiUrlInput" class="setup-input" type="url"
         value="${x(BOT_API)}" placeholder="https://xxxx.trycloudflare.com">
       <button class="setup-btn" onclick="applyApiUrl()">Сохранить и подключиться</button>
+      ${BOT_API ? `<button class="setup-btn" style="margin-top:8px;background:var(--surface2);color:var(--text)" onclick="retryConnection()">↻ Повторить попытку</button>` : ''}
     </div>`;
+}
+
+async function retryConnection() {
+  toast('Проверяю соединение...');
+  const ok = await checkConnection();
+  if (ok) { toast('✅ Подключено!'); setTimeout(() => loadTab(currentTab), 500); }
+  else showApiSetup('Сервер не отвечает. Проверь, запущен ли start.bat');
 }
 
 async function applyApiUrl() {
@@ -433,10 +451,11 @@ async function applyApiUrl() {
   if (!url.startsWith('http')) { toast('URL должен начинаться с https://'); return; }
   BOT_API = url;
   localStorage.setItem('mab_api_url', url);
+  _apiFailCount = 0;
   toast('Проверяю...');
   const ok = await checkConnection();
-  if (ok) { toast('Подключено'); setTimeout(() => loadTab(currentTab), 600); }
-  else toast('Сервер не отвечает');
+  if (ok) { toast('✅ Подключено!'); setTimeout(() => loadTab(currentTab), 600); }
+  else showApiSetup('Сервер не отвечает. Убедись что start.bat запущен и URL правильный.');
 }
 
 // ── NAV ──────────────────────────────────────
@@ -463,19 +482,9 @@ async function loadTab(tab) {
 
 async function renderHome(el) {
   const [pls, recent] = await Promise.all([api('/playlists'), api('/tracks/recent?limit=20')]);
-
-  // Если оба запроса вернули null — сервер недоступен
-  if (pls === null && recent === null) {
-    el.innerHTML = `<div class="empty" style="padding-top:40px">
-      <div style="font-size:32px;margin-bottom:12px;opacity:0.3">⚡</div>
-      <div class="empty-text" style="margin-bottom:16px">Сервер недоступен.<br>Проверь что бот запущен.</div>
-      <button onclick="loadTab('home')" style="padding:9px 22px;background:var(--surface2);border:none;border-radius:100px;color:var(--text);font-size:13px;cursor:pointer;">Обновить</button>
-    </div>`;
-    return;
-  }
-
   playlists = pls || [];
   allTracks = recent || [];
+  if (!playlists.length && !allTracks.length) { el.innerHTML = empty('Архив пуст'); return; }
   let html = `<div class="hero"><div class="hero-label">Личный архив</div><div class="hero-title">Music Archive</div><div class="hero-sub">${allTracks.length ? allTracks.length + '+ треков' : 'Добавляй треки через бота'}</div></div>`;
   if (playlists.length) {
     html += `<div class="section-title">Плейлисты</div><div class="playlists-grid">`;
@@ -486,7 +495,6 @@ async function renderHome(el) {
     html += `<div class="section-title">Последние добавления</div>`;
     allTracks.slice(0, 12).forEach((t, i) => { html += trackRow(t, i + 1); });
   }
-  if (!playlists.length && !allTracks.length) html += empty('Архив пуст — добавляй треки через бота');
   el.innerHTML = html;
 }
 
@@ -785,8 +793,10 @@ function x(s) {
   if (BOT_API) {
     await checkConnection();
     fetchBotUsername();
+    loadTab('home');
+  } else {
+    showApiSetup();
   }
-  loadTab('home');
 })();
 </script>
 </body>

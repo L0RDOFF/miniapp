@@ -378,24 +378,26 @@ async function api(path) {
 }
 
 async function autoFetchTunnelUrl() {
-  const candidates = BOT_API ? [BOT_API] : ['http://localhost:8080'];
+  // Никогда не затираем рабочий BOT_API если сервер не ответил
   const headers = { 'ngrok-skip-browser-warning': '1', 'bypass-tunnel-reminder': '1' };
-  for (const base of candidates) {
-    try {
-      const r = await fetch(`${base}/tunnel-url`, { signal: AbortSignal.timeout(3000), headers });
-      if (!r.ok) continue;
-      const data = await r.json();
-      if (data.url) {
+  const base = BOT_API || 'http://localhost:8080';
+  try {
+    const r = await fetch(`${base}/tunnel-url`, { signal: AbortSignal.timeout(3000), headers });
+    if (!r.ok) return;
+    const data = await r.json();
+    // Обновляем только если пришёл валидный URL
+    if (data.url && data.url.startsWith('http')) {
+      if (data.url !== BOT_API) {
         BOT_API = data.url;
         localStorage.setItem('mab_api_url', data.url);
-        return;
       }
-      if (!BOT_API) {
-        BOT_API = base;
-        localStorage.setItem('mab_api_url', base);
-      }
-      return;
-    } catch(e) {}
+    } else if (!BOT_API) {
+      // Файл туннеля ещё не создан, но сервер отвечает — используем localhost
+      BOT_API = base;
+      localStorage.setItem('mab_api_url', base);
+    }
+  } catch(e) {
+    // Сеть недоступна — ничего не меняем
   }
 }
 
@@ -461,9 +463,19 @@ async function loadTab(tab) {
 
 async function renderHome(el) {
   const [pls, recent] = await Promise.all([api('/playlists'), api('/tracks/recent?limit=20')]);
+
+  // Если оба запроса вернули null — сервер недоступен
+  if (pls === null && recent === null) {
+    el.innerHTML = `<div class="empty" style="padding-top:40px">
+      <div style="font-size:32px;margin-bottom:12px;opacity:0.3">⚡</div>
+      <div class="empty-text" style="margin-bottom:16px">Сервер недоступен.<br>Проверь что бот запущен.</div>
+      <button onclick="loadTab('home')" style="padding:9px 22px;background:var(--surface2);border:none;border-radius:100px;color:var(--text);font-size:13px;cursor:pointer;">Обновить</button>
+    </div>`;
+    return;
+  }
+
   playlists = pls || [];
   allTracks = recent || [];
-  if (!playlists.length && !allTracks.length) { el.innerHTML = empty('Архив пуст'); return; }
   let html = `<div class="hero"><div class="hero-label">Личный архив</div><div class="hero-title">Music Archive</div><div class="hero-sub">${allTracks.length ? allTracks.length + '+ треков' : 'Добавляй треки через бота'}</div></div>`;
   if (playlists.length) {
     html += `<div class="section-title">Плейлисты</div><div class="playlists-grid">`;
@@ -474,6 +486,7 @@ async function renderHome(el) {
     html += `<div class="section-title">Последние добавления</div>`;
     allTracks.slice(0, 12).forEach((t, i) => { html += trackRow(t, i + 1); });
   }
+  if (!playlists.length && !allTracks.length) html += empty('Архив пуст — добавляй треки через бота');
   el.innerHTML = html;
 }
 

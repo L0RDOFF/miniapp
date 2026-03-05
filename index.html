@@ -365,55 +365,102 @@ let searchOpen  = false;
 // ── API ──────────────────────────────────────
 
 let _apiFailCount = 0;
+const _diagLog = [];
+
+function diagLog(msg, data) {
+  const ts = new Date().toISOString().substr(11,12);
+  const line = data !== undefined ? `[${ts}] ${msg}: ${JSON.stringify(data)}` : `[${ts}] ${msg}`;
+  _diagLog.push(line);
+  console.log('%c[MusicArchive] ' + line, 'color:#c8f53a');
+  const logEl = document.getElementById('diagLogContent');
+  if (logEl) logEl.textContent = _diagLog.slice(-50).join('\n');
+}
+
+async function diagFetch(label, url, opts = {}) {
+  diagLog(`→ ${label}`, url);
+  const t0 = Date.now();
+  try {
+    const r = await fetch(url, {
+      signal: AbortSignal.timeout(8000),
+      headers: { 'bypass-tunnel-reminder': '1', 'ngrok-skip-browser-warning': '1' },
+      ...opts
+    });
+    const ms = Date.now() - t0;
+    diagLog(`← ${label} status`, `${r.status} (${ms}ms)`);
+    if (!r.ok) {
+      const body = await r.text().catch(() => '');
+      diagLog(`← ${label} body`, body.substr(0,300));
+      throw new Error(`HTTP ${r.status}`);
+    }
+    const json = await r.json();
+    diagLog(`← ${label} ok`, json);
+    return { ok: true, data: json };
+  } catch(e) {
+    diagLog(`✗ ${label} failed`, e.message);
+    return { ok: false, error: e.message };
+  }
+}
 
 async function api(path) {
-  if (!BOT_API) return null;
-  try {
-    const sep = path.includes('?') ? '&' : '?';
-    const r = await fetch(`${BOT_API}${path}${sep}_=${Date.now()}`, {
-      signal: AbortSignal.timeout(8000),
-      headers: { 'bypass-tunnel-reminder': '1', 'ngrok-skip-browser-warning': '1' }
-    });
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  if (!BOT_API) { diagLog('api() skipped — no BOT_API'); return null; }
+  const sep = path.includes('?') ? '&' : '?';
+  const url = `${BOT_API}${path}${sep}_=${Date.now()}`;
+  const res = await diagFetch(path, url);
+  if (res.ok) { _apiFailCount = 0; return res.data; }
+  _apiFailCount++;
+  if (_apiFailCount >= 2) {
+    diagLog('!! resetting BOT_API after 2 failures');
     _apiFailCount = 0;
-    return await r.json();
-  } catch(e) {
-    console.warn('API:', e.message);
-    _apiFailCount++;
-    // После 2 подряд ошибок — сбрасываем URL и показываем экран настройки
-    if (_apiFailCount >= 2) {
-      _apiFailCount = 0;
-      BOT_API = '';
-      localStorage.removeItem('mab_api_url');
-      showApiSetup();
-    }
-    return null;
+    BOT_API = '';
+    localStorage.removeItem('mab_api_url');
+    showApiSetup();
   }
+  return null;
 }
 
 async function autoFetchTunnelUrl() {
-  // Сначала проверяем актуальность сохранённого URL (он меняется при каждом запуске cloudflared)
+  diagLog('autoFetchTunnelUrl', BOT_API || '(empty)');
   if (BOT_API) {
-    try {
-      const r = await fetch(`${BOT_API}/health`, {
-        signal: AbortSignal.timeout(4000),
-        headers: { 'bypass-tunnel-reminder': '1' }
-      });
-      if (r.ok) return; // URL актуален, всё хорошо
-    } catch(e) {}
-    // Сохранённый URL не отвечает — сбрасываем
-    console.warn('Сохранённый API URL недоступен, сбрасываем...');
+    const res = await diagFetch('health-init', `${BOT_API}/health`);
+    if (res.ok) { diagLog('Saved URL alive ✓'); return; }
+    diagLog('Saved URL dead — clearing');
     BOT_API = '';
     localStorage.removeItem('mab_api_url');
   }
-  // URL не задан или устарел — показываем экран настройки
-  // (localhost недоступен из браузера на другом устройстве)
 }
 
 async function checkConnection() {
-  const ok = await api('/health');
-  document.getElementById('statusDot').classList.toggle('online', !!ok);
-  return !!ok;
+  diagLog('checkConnection', BOT_API);
+  const res = await diagFetch('/health', `${BOT_API}/health`);
+  document.getElementById('statusDot').classList.toggle('online', res.ok);
+  return res.ok;
+}
+
+// ── DIAG PANEL ───────────────────────────────
+
+function showDiagLog() {
+  const existing = document.getElementById('diagPanel');
+  if (existing) { existing.remove(); return; }
+  const div = document.createElement('div');
+  div.id = 'diagPanel';
+  div.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#0a0a0a;border-top:2px solid #c8f53a;max-height:50vh;display:flex;flex-direction:column;';
+  div.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 14px;border-bottom:1px solid #1e1e1e;flex-shrink:0">
+      <span style="font-size:12px;font-weight:700;color:#c8f53a;font-family:monospace">🔍 Diagnostic Log</span>
+      <div style="display:flex;gap:8px">
+        <button onclick="navigator.clipboard.writeText(_diagLog.join('\n')).then(()=>toast('Скопировано ✓'))"
+          style="background:#1e1e1e;border:1px solid #333;color:#c8f53a;font-size:11px;padding:3px 10px;border-radius:6px;cursor:pointer">
+          📋 Копировать
+        </button>
+        <button onclick="document.getElementById('diagPanel').remove()"
+          style="background:#1e1e1e;border:1px solid #333;color:#777;font-size:12px;padding:3px 10px;border-radius:6px;cursor:pointer">
+          ✕ Закрыть
+        </button>
+      </div>
+    </div>
+    <pre id="diagLogContent" style="flex:1;overflow-y:auto;margin:0;padding:10px 14px;font-family:monospace;font-size:11px;color:#bbb;line-height:1.7;white-space:pre-wrap;word-break:break-all;">${_diagLog.slice(-50).join('\n') || '(пусто — нажми «Повторить попытку»)'}</pre>`;
+  document.body.appendChild(div);
+  div.querySelector('pre').scrollTop = 99999;
 }
 
 // ── SETUP ────────────────────────────────────
@@ -430,32 +477,33 @@ function showApiSetup(errorMsg) {
         ${errorMsg ? `<div style="color:#ff6b6b;margin-bottom:12px;font-size:13px">⚠️ ${errorMsg}</div>` : ''}
         Каждый запуск <code style="color:var(--accent)">start.bat</code> создаёт <b>новый</b> URL туннеля.
         Скопируй его из окна cloudflared и вставь ниже:<br><br>
-        <div class="setup-code">Выгляди как: https://xxxx-xxxx-xxxx.trycloudflare.com</div>
+        <div class="setup-code">Выглядит как: https://xxxx-xxxx-xxxx.trycloudflare.com</div>
       </div>
       <input id="apiUrlInput" class="setup-input" type="url"
         value="${x(BOT_API)}" placeholder="https://xxxx.trycloudflare.com">
       <button class="setup-btn" onclick="applyApiUrl()">Сохранить и подключиться</button>
       ${BOT_API ? `<button class="setup-btn" style="margin-top:8px;background:var(--surface2);color:var(--text)" onclick="retryConnection()">↻ Повторить попытку</button>` : ''}
+      <button class="setup-btn" style="margin-top:8px;background:transparent;border:1px solid #2a2a2a;color:var(--text2);font-size:13px" onclick="showDiagLog()">🔍 Лог диагностики</button>
     </div>`;
 }
 
 async function retryConnection() {
-  toast('Проверяю соединение...');
+  diagLog('=== retryConnection ===');
   const ok = await checkConnection();
   if (ok) { toast('✅ Подключено!'); setTimeout(() => loadTab(currentTab), 500); }
-  else showApiSetup('Сервер не отвечает. Проверь, запущен ли start.bat');
+  else showApiSetup('Сервер не отвечает. Нажми «Лог диагностики» чтобы понять причину.');
 }
 
 async function applyApiUrl() {
   const url = (document.getElementById('apiUrlInput')?.value || '').trim().replace(/\/$/, '');
   if (!url.startsWith('http')) { toast('URL должен начинаться с https://'); return; }
+  diagLog('=== applyApiUrl ===', url);
   BOT_API = url;
   localStorage.setItem('mab_api_url', url);
   _apiFailCount = 0;
-  toast('Проверяю...');
   const ok = await checkConnection();
   if (ok) { toast('✅ Подключено!'); setTimeout(() => loadTab(currentTab), 600); }
-  else showApiSetup('Сервер не отвечает. Убедись что start.bat запущен и URL правильный.');
+  else showApiSetup('Сервер не отвечает. Нажми «Лог диагностики» чтобы понять причину.');
 }
 
 // ── NAV ──────────────────────────────────────

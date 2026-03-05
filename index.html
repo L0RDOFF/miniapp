@@ -232,7 +232,47 @@ body {
 .empty { text-align: center; padding: 60px 20px; color: var(--text3); }
 .empty-text { font-size: 13px; line-height: 1.6; }
 
-.setup-screen { padding: 24px 16px; }
+.setup-screen {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 40px 24px 32px; gap: 12px; min-height: 55vh; justify-content: center;
+}
+.setup-logo { margin-bottom: 4px; }
+.setup-title {
+  font-family: 'Unbounded', sans-serif; font-size: 20px; font-weight: 800;
+  margin-bottom: 4px; letter-spacing: -0.5px;
+}
+.setup-hint { font-size: 13px; color: var(--text2); text-align: center; margin-bottom: 4px; }
+.setup-error {
+  font-size: 13px; color: #ff6b6b; text-align: center;
+  background: rgba(255,107,107,0.08); padding: 10px 16px;
+  border-radius: 10px; width: 100%; box-sizing: border-box;
+}
+.setup-input-wrap { position: relative; width: 100%; }
+.setup-input {
+  width: 100%; padding: 14px 48px 14px 16px;
+  border-radius: 14px; border: 1.5px solid var(--surface3);
+  background: var(--surface2); color: var(--text);
+  font-size: 12px; font-family: monospace; letter-spacing: 0.3px;
+  outline: none; box-sizing: border-box; transition: border-color 0.15s;
+}
+.setup-input:focus { border-color: var(--accent); }
+.setup-paste-btn {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; color: var(--text2); cursor: pointer;
+  padding: 6px; display: flex; align-items: center; transition: color 0.15s;
+}
+.setup-paste-btn:hover { color: var(--accent); }
+.setup-btn {
+  width: 100%; padding: 14px; border-radius: 100px; border: none;
+  background: var(--accent); color: #000; font-weight: 700; font-size: 14px;
+  cursor: pointer; transition: opacity 0.15s;
+}
+.setup-btn:active { opacity: 0.8; }
+.setup-btn-secondary { background: var(--surface2); color: var(--text); }
+.setup-btn-ghost {
+  background: transparent; color: var(--text3);
+  font-size: 12px; font-weight: 400; padding: 8px;
+}setup-screen { padding: 24px 16px; }
 .setup-title { font-family: 'Unbounded', sans-serif; font-size: 16px; font-weight: 800; margin-bottom: 8px; }
 .setup-desc { font-size: 13px; color: var(--text2); line-height: 1.7; margin-bottom: 20px; }
 .setup-code { background: var(--surface2); padding: 10px 14px; border-radius: var(--radius-sm); font-size: 12px; font-family: monospace; color: var(--accent); margin: 8px 0 16px; word-break: break-all; }
@@ -456,7 +496,7 @@ const tg = window.Telegram?.WebApp;
 if (tg) { tg.ready(); tg.expand(); }
 const USER_ID = tg?.initDataUnsafe?.user?.id || 0;
 
-let BOT_API    = localStorage.getItem('mab_api_url') || 'https://b314901bd48bc1e9-185-97-201-214.serveousercontent.com';
+let BOT_API    = localStorage.getItem('mab_api_url') || '';
 let allTracks  = [];
 let playlists  = [];
 let favorites  = new Set(JSON.parse(localStorage.getItem('mab_favs') || '[]'));
@@ -524,23 +564,41 @@ async function checkConnection() {
 
 // ── SETUP ────────────────────────────────────
 
-function showApiSetup() {
+function showApiSetup(errorMsg) {
   closeSearch();
   closeDetail();
   document.getElementById('mainView').style.display = 'block';
   document.getElementById('searchView').classList.remove('show');
-  document.getElementById('tabContent').innerHTML = `
-    <div class="setup-screen">
-      <div class="setup-title">Подключение</div>
-      <div class="setup-desc">
-        Запусти <code style="color:var(--accent)">start.bat</code> — URL обновится автоматически.<br><br>
-        Или вставь URL из окна cloudflared вручную:
-        <div class="setup-code">cloudflared tunnel --url http://localhost:8080 --protocol http2</div>
-      </div>
-      <input id="apiUrlInput" class="setup-input" type="url"
-        value="${x(BOT_API)}" placeholder="https://xxxx.trycloudflare.com">
-      <button class="setup-btn" onclick="applyApiUrl()">Сохранить и подключиться</button>
-    </div>`;
+  const errHtml = errorMsg
+    ? '<div class="setup-error">⚠ ' + x(errorMsg) + '</div>'
+    : '<div class="setup-hint">Скопируй URL из чата бота и вставь сюда</div>';
+  const retryBtn = BOT_API
+    ? '<button class="setup-btn setup-btn-secondary" onclick="retryConnection()">Повторить попытку</button>'
+    : '';
+  document.getElementById('tabContent').innerHTML =
+    '<div class="setup-screen">' +
+    '<div class="setup-logo"><svg width="44" height="44" viewBox="0 0 24 24" fill="var(--accent)"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/></svg></div>' +
+    '<div class="setup-title">Music Archive</div>' +
+    errHtml +
+    '<div class="setup-input-wrap">' +
+    '<input id="apiUrlInput" class="setup-input" type="url" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="none" value="' + x(BOT_API) + '" placeholder="https://xxxx.serveousercontent.com" onkeydown="if(event.key==='Enter')applyApiUrl()">' +
+    '<button class="setup-paste-btn" onclick="pasteUrl()" title="Вставить"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 2h-4.18C14.4.84 13.3 0 12 0c-1.3 0-2.4.84-2.82 2H5a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm7 18H5V4h2v3h10V4h2v16z"/></svg></button>' +
+    '</div>' +
+    '<button class="setup-btn" onclick="applyApiUrl()">Подключиться</button>' +
+    retryBtn +
+    '<button class="setup-btn setup-btn-ghost" onclick="showDiagLog()">Лог диагностики</button>' +
+    '</div>';
+  setTimeout(function(){ var el = document.getElementById('apiUrlInput'); if(el) el.focus(); }, 100);
+}
+
+async function pasteUrl() {
+  try {
+    const text = await navigator.clipboard.readText();
+    if (text.startsWith('http')) {
+      document.getElementById('apiUrlInput').value = text.trim();
+      applyApiUrl();
+    } else { toast('Не похоже на URL'); }
+  } catch(e) { toast('Вставь вручную (Ctrl+V)'); }
 }
 
 async function applyApiUrl() {
@@ -977,6 +1035,23 @@ function playTrack(t, idx) {
 
   document.getElementById('player').classList.add('show');
   document.body.style.paddingBottom = '140px';
+
+  // Media Session API — показываем трек в системном плеере телефона
+  if ('mediaSession' in navigator) {
+    const coverUrl = getCoverUrl(t);
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title:  t.title  || 'Неизвестный трек',
+      artist: t.artist || '',
+      artwork: coverUrl ? [{ src: coverUrl, sizes: '512x512', type: 'image/jpeg' }] : []
+    });
+    navigator.mediaSession.setActionHandler('play',         () => { audio.play(); });
+    navigator.mediaSession.setActionHandler('pause',        () => { audio.pause(); });
+    navigator.mediaSession.setActionHandler('previoustrack',() => skipTrack(-1));
+    navigator.mediaSession.setActionHandler('nexttrack',    () => skipTrack(1));
+    navigator.mediaSession.setActionHandler('seekto', e => {
+      if (e.seekTime !== undefined) audio.currentTime = e.seekTime;
+    });
+  }
 }
 
 function setPlayContext(tracks, startIdx) {
@@ -1129,6 +1204,18 @@ function x(s) {
     await checkConnection();
     fetchBotUsername();
     loadTab('home');
+    // Автозапуск трека если передан ?play=file_id (из инлайн кнопки)
+    const playId = new URLSearchParams(location.search).get('play');
+    if (playId) {
+      // Ждём загрузки треков, потом ищем и играем
+      setTimeout(async () => {
+        const track = await api(`/tracks/by-file-id?file_id=${encodeURIComponent(playId)}`);
+        if (track?.file_id) {
+          setPlayContext([track], 0);
+          toast('▶ ' + track.artist + ' — ' + track.title);
+        }
+      }, 800);
+    }
   } else {
     showApiSetup();
   }

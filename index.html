@@ -496,7 +496,7 @@ const tg = window.Telegram?.WebApp;
 if (tg) { tg.ready(); tg.expand(); }
 const USER_ID = tg?.initDataUnsafe?.user?.id || 0;
 
-let BOT_API    = localStorage.getItem('mab_api_url') || '';
+let BOT_API    = localStorage.getItem('mab_api_url') || 'https://cddc0976f119254c-185-97-201-214.serveousercontent.com';
 let allTracks  = [];
 let playlists  = [];
 let favorites  = new Set(JSON.parse(localStorage.getItem('mab_favs') || '[]'));

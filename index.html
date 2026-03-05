@@ -168,6 +168,7 @@ body {
 }
 .track-item:last-child { border-bottom: none; }
 .track-item:active .track-title { color: var(--accent); }
+.track-item.playing .track-title { color: var(--accent); }
 .track-num { width: 18px; text-align: center; font-size: 11px; color: var(--text3); flex-shrink: 0; }
 .track-cover {
   width: 42px; height: 42px; border-radius: var(--radius-sm);
@@ -245,24 +246,41 @@ body {
 /* ── PLAYER ── */
 .player {
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 500;
-  background: rgba(18,18,18,0.97);
-  backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+  background: rgba(14,14,14,0.98);
+  backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
   border-top: 1px solid rgba(255,255,255,0.06);
   transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
   padding-bottom: env(safe-area-inset-bottom);
 }
 .player.show { transform: translateY(0); }
 
-.player-progress {
-  height: 2px; background: var(--surface3); cursor: pointer; position: relative;
+.player-seek {
+  padding: 10px 14px 0; cursor: pointer;
+  user-select: none; -webkit-user-select: none;
 }
-.player-progress-fill {
-  height: 100%; background: var(--accent);
-  width: 0%; transition: width 0.5s linear; pointer-events: none;
+.player-seek-track {
+  height: 4px; background: var(--surface3); border-radius: 2px;
+  position: relative; transition: height 0.12s;
 }
+.player-seek:hover .player-seek-track { height: 6px; }
+.player-seek-fill {
+  height: 100%; background: var(--accent); border-radius: 2px;
+  position: relative; pointer-events: none; width: 0%;
+}
+.player-seek-thumb {
+  position: absolute; right: -6px; top: 50%; transform: translateY(-50%) scale(0);
+  width: 13px; height: 13px; border-radius: 50%; background: #fff;
+  transition: transform 0.12s; pointer-events: none;
+}
+.player-seek:hover .player-seek-thumb { transform: translateY(-50%) scale(1); }
+
+.player-times {
+  display: flex; justify-content: space-between; padding: 3px 15px 0;
+}
+.player-time { font-size: 10px; color: var(--text3); font-variant-numeric: tabular-nums; }
 
 .player-body {
-  display: flex; align-items: center; gap: 10px; padding: 10px 16px 12px;
+  display: flex; align-items: center; gap: 10px; padding: 8px 14px 4px;
 }
 .player-cover {
   width: 44px; height: 44px; border-radius: 8px;
@@ -273,33 +291,33 @@ body {
 .player-info { flex: 1; min-width: 0; }
 .player-artist { font-size: 11px; color: var(--text2); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .player-title { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.player-controls { display: flex; align-items: center; gap: 4px; }
+.player-controls { display: flex; align-items: center; gap: 2px; }
 .player-btn {
   width: 36px; height: 36px; border-radius: 50%; border: none;
-  background: none; color: var(--text); font-size: 16px; cursor: pointer;
+  background: none; color: var(--text2); cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  transition: opacity 0.15s; flex-shrink: 0;
-  line-height: 1; padding: 0;
+  transition: color 0.15s, opacity 0.15s; flex-shrink: 0; padding: 0;
 }
-.player-btn:active { opacity: 0.6; }
+.player-btn:active { opacity: 0.5; }
 .player-btn.play-btn {
-  background: var(--accent); color: #000; font-size: 14px; width: 38px; height: 38px;
+  background: var(--accent); color: #000; width: 40px; height: 40px; margin: 0 2px;
 }
-.player-btn.tg-btn { font-size: 14px; color: var(--text2); }
-.volume-wrap { display: flex; align-items: center; gap: 6px; padding: 0 14px 10px; }
-.volume-icon { font-size: 13px; color: var(--text2); cursor: pointer; }
-.volume-slider {
+.player-btn.tg-btn { color: var(--text2); }
+
+.player-volume {
+  display: flex; align-items: center; gap: 8px; padding: 0 14px 10px;
+}
+.vol-btn { background: none; border: none; color: var(--text3); cursor: pointer; padding: 0; display: flex; align-items: center; flex-shrink: 0; }
+.vol-slider {
   flex: 1; -webkit-appearance: none; appearance: none;
-  height: 3px; border-radius: 2px; outline: none;
-  background: linear-gradient(to right, var(--accent) 0%, var(--surface3) 0%);
-  cursor: pointer;
+  height: 3px; border-radius: 2px; outline: none; cursor: pointer;
 }
-.volume-slider::-webkit-slider-thumb {
-  -webkit-appearance: none; width: 13px; height: 13px;
-  border-radius: 50%; background: var(--accent); cursor: pointer;
+.vol-slider::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 11px; height: 11px;
+  border-radius: 50%; background: var(--text3); cursor: pointer;
+  transition: background 0.15s;
 }
-.time-wrap { display: flex; justify-content: space-between; padding: 2px 14px 0; }
-.time-txt { font-size: 10px; color: var(--text3); font-family: monospace; }
+.vol-slider:hover::-webkit-slider-thumb { background: var(--accent); }
 
 .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text3); flex-shrink: 0; transition: background 0.3s; }
 .status-dot.online { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
@@ -354,30 +372,53 @@ body {
 
 <!-- PLAYER -->
 <div class="player" id="player">
-  <div class="player-progress" id="playerProgress" onclick="seekAudio(event)">
-    <div class="player-progress-fill" id="playerFill"></div>
+  <!-- Seek bar -->
+  <div class="player-seek" id="playerSeek"
+    onmousedown="seekStart(event)" ontouchstart="seekStart(event)">
+    <div class="player-seek-track">
+      <div class="player-seek-fill" id="playerFill">
+        <div class="player-seek-thumb"></div>
+      </div>
+    </div>
   </div>
+  <!-- Times -->
+  <div class="player-times">
+    <span class="player-time" id="timeCurrent">0:00</span>
+    <span class="player-time" id="timeDuration">0:00</span>
+  </div>
+  <!-- Main row -->
   <div class="player-body">
-    <div class="player-cover" id="playerCover"></div>
+    <div class="player-cover" id="playerCover">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="var(--text3)"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/></svg>
+    </div>
     <div class="player-info">
       <div class="player-artist" id="playerArtist"></div>
       <div class="player-title" id="playerTitle">Ничего не играет</div>
     </div>
     <div class="player-controls">
-      <button class="player-btn tg-btn" id="tgBtn" onclick="openInTelegram()" title="Открыть в Telegram">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248l-2.04 9.61c-.148.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.48 14.4l-2.95-.924c-.642-.2-.654-.642.136-.953l11.52-4.44c.535-.194 1.003.13.376.165z"/></svg>
+      <button class="player-btn tg-btn" onclick="openInTelegram()" title="Открыть в Telegram">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-2.04 9.61c-.148.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.48 14.4l-2.95-.924c-.642-.2-.654-.642.136-.953l11.52-4.44c.535-.194 1.003.13.376.165z"/></svg>
       </button>
-      <button class="player-btn play-btn" id="playBtn" onclick="togglePlay()">▶</button>
-      <button class="player-btn" onclick="closePlayer()" style="font-size:14px;color:var(--text3)">✕</button>
+      <button class="player-btn" onclick="skipTrack(-1)" title="Назад">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
+      </button>
+      <button class="player-btn play-btn" id="playBtn" onclick="togglePlay()">
+        <svg id="playIcon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+      </button>
+      <button class="player-btn" onclick="skipTrack(1)" title="Вперёд">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zm2.5-6 8.5 6V6z"/></svg>
+      </button>
+      <button class="player-btn" onclick="closePlayer()" title="Закрыть">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+      </button>
     </div>
   </div>
-  <div class="time-wrap">
-    <span class="time-txt" id="timeCurrent">0:00</span>
-    <span class="time-txt" id="timeDuration">0:00</span>
-  </div>
-  <div class="volume-wrap">
-    <span class="volume-icon" onclick="toggleMute()">🔊</span>
-    <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="100" oninput="setVolume(this.value)">
+  <!-- Volume row -->
+  <div class="player-volume">
+    <button class="vol-btn" onclick="toggleMute()" id="volBtn">
+      <svg id="volIcon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+    </button>
+    <input type="range" class="vol-slider" id="volSlider" min="0" max="100" value="100" oninput="setVolume(this.value)">
   </div>
 </div>
 
@@ -412,7 +453,6 @@ async function api(path) {
 
 async function autoFetchTunnelUrl() {
   diagLog('autoFetchTunnelUrl', BOT_API || '(empty)');
-  // Если есть сохранённый URL — проверяем что он живой
   if (BOT_API) {
     const res = await diagFetch('health-init', `${BOT_API}/health`);
     if (res.ok) { diagLog('Saved URL alive ✓'); return; }
@@ -420,22 +460,33 @@ async function autoFetchTunnelUrl() {
     BOT_API = '';
     localStorage.removeItem('mab_api_url');
   }
-  // Автоопределение: пробуем localhost (если на том же ПК)
-  // и через /tunnel-url получаем актуальный Serveo/ngrok URL
-  const localBases = ['http://localhost:8080', 'http://127.0.0.1:8080'];
-  for (const base of localBases) {
+  // Пробуем localhost — работает если Mini App открыт на том же ПК
+  for (const base of ['http://localhost:8080', 'http://127.0.0.1:8080']) {
     try {
-      const r = await fetch(`${base}/tunnel-url`, { signal: AbortSignal.timeout(2000) });
-      if (!r.ok) continue;
-      const data = await r.json();
-      const url = data.url || base;
-      BOT_API = url;
-      localStorage.setItem('mab_api_url', url);
-      diagLog('Auto-detected via /tunnel-url', url);
-      return;
+      const r = await fetch(`${base}/health`, {
+        signal: AbortSignal.timeout(1500),
+        headers: { 'bypass-tunnel-reminder': '1' }
+      });
+      if (r.ok) {
+        // Получаем актуальный tunnel URL (Serveo/ngrok)
+        try {
+          const tr = await fetch(`${base}/tunnel-url`, { signal: AbortSignal.timeout(1500) });
+          const td = await tr.json();
+          if (td.url) {
+            BOT_API = td.url;
+            localStorage.setItem('mab_api_url', td.url);
+            diagLog('Auto: got tunnel URL', td.url);
+            return;
+          }
+        } catch(e) {}
+        BOT_API = base;
+        localStorage.setItem('mab_api_url', base);
+        diagLog('Auto: using localhost', base);
+        return;
+      }
     } catch(e) {}
   }
-  diagLog('Auto-detect failed — showing setup screen');
+  diagLog('Auto-detect failed');
 }
 
 async function checkConnection() {
@@ -511,7 +562,7 @@ async function renderHome(el) {
   }
   if (allTracks.length) {
     html += `<div class="section-title">Последние добавления</div>`;
-    allTracks.slice(0, 12).forEach((t, i) => { html += trackRow(t, i + 1); });
+    html += buildTrackRows(allTracks.slice(0, 12));
   }
   el.innerHTML = html;
 }
@@ -528,7 +579,7 @@ async function renderRecent(el) {
   const tracks = await api('/tracks/recent?limit=50');
   if (!tracks?.length) { el.innerHTML = empty('Треков пока нет'); return; }
   let html = `<div class="section-title">${tracks.length} треков</div>`;
-  tracks.forEach((t, i) => { html += trackRow(t, i + 1); });
+  html += buildTrackRows(tracks);
   el.innerHTML = html;
 }
 
@@ -539,7 +590,7 @@ async function renderFavorites(el) {
   const favs = tracks.filter(t => favorites.has(t.file_id));
   if (!favs.length) { el.innerHTML = empty('Треки не найдены'); return; }
   let html = `<div class="section-title">${favs.length} треков</div>`;
-  favs.forEach((t, i) => { html += trackRow(t, i + 1); });
+  html += buildTrackRows(favs);
   el.innerHTML = html;
 }
 
@@ -578,7 +629,7 @@ async function openPlaylist(id) {
       <button class="btn-secondary" onclick="playRandom(${id})">⇌</button>
     </div>
     <div style="padding:0 16px 40px;">`;
-  if (data?.tracks?.length) data.tracks.forEach((t, i) => { html += trackRow(t, i + 1); });
+  if (data?.tracks?.length) html += buildTrackRows(data.tracks);
   else html += empty('Плейлист пуст');
   content.innerHTML = html + '</div>';
 }
@@ -687,7 +738,7 @@ async function doSearch(q) {
   }
   if (!tracks.length) { el.innerHTML = empty('Ничего не найдено'); return; }
   let html = `<div class="section-title">${tracks.length} результатов</div>`;
-  tracks.forEach((t, i) => { html += trackRow(t, i + 1); });
+  html += buildTrackRows(tracks);
   el.innerHTML = html;
 }
 
@@ -709,14 +760,16 @@ function playlistCard(pl) {
     </div>`;
 }
 
-function trackRow(t, num) {
+function trackRow(t, num, tracks, idx) {
   const isFav = favorites.has(t.file_id);
   const badge = [t.year, t.genre].filter(Boolean).join(' · ');
   const td = JSON.stringify(t).replace(/"/g,'&quot;');
+  const coverUrl = getCoverUrl(t);
+  const isPlaying = currentTrack && currentTrack.file_id === t.file_id;
   return `
-    <div class="track-item" onclick="playTrack(${td})">
-      <div class="track-num">${num}</div>
-      <div class="track-cover">${t.cover ? `<img src="${x(t.cover)}" loading="lazy">` : ''}</div>
+    <div class="track-item${isPlaying?' playing':''}" onclick="setPlayContext(_trackCtx[${JSON.stringify(num-1)}]||[],0)">
+      <div class="track-num">${isPlaying ? '<span style="color:var(--accent);font-size:13px">▶</span>' : num}</div>
+      <div class="track-cover">${coverUrl ? `<img src="${x(coverUrl)}" loading="lazy" onerror="this.style.display='none'">` : ''}</div>
       <div class="track-info">
         <div class="track-artist">${x(t.artist)}</div>
         <div class="track-title">${x(t.title)}</div>
@@ -724,6 +777,34 @@ function trackRow(t, num) {
       </div>
       <button class="track-fav ${isFav?'on':''}" onclick="event.stopPropagation();toggleFav('${x(t.file_id)}',this)">${isFav?'♥':'♡'}</button>
     </div>`;
+}
+
+// Контекст треков для setPlayContext (обновляется при рендере списков)
+const _trackCtx = {};
+
+function buildTrackRows(tracks) {
+  // Строит список треков с правильным контекстом для автопереключения
+  const ctx = tracks.map((t,i) => ({ track: t, tracks, idx: i }));
+  let html = '';
+  tracks.forEach((t, i) => {
+    const isFav = favorites.has(t.file_id);
+    const badge = [t.year, t.genre].filter(Boolean).join(' · ');
+    const coverUrl = getCoverUrl(t);
+    const isPlaying = currentTrack && currentTrack.file_id === t.file_id;
+    const key = `ctx_${i}_${t.file_id.slice(-6)}`;
+    html += `
+    <div class="track-item${isPlaying?' playing':''}" onclick="setPlayContext(${JSON.stringify(tracks).replace(/"/g,'&quot;')}, ${i})">
+      <div class="track-num">${isPlaying ? '<span style="color:var(--accent)">▶</span>' : i+1}</div>
+      <div class="track-cover">${coverUrl ? `<img src="${x(coverUrl)}" loading="lazy" onerror="this.style.display='none'">` : `<svg width="16" height="16" viewBox="0 0 24 24" fill="var(--text3)"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/></svg>`}</div>
+      <div class="track-info">
+        <div class="track-artist">${x(t.artist)}</div>
+        <div class="track-title">${x(t.title)}</div>
+        ${badge ? `<div class="track-badge">${x(badge)}</div>` : ''}
+      </div>
+      <button class="track-fav ${isFav?'on':''}" onclick="event.stopPropagation();toggleFav('${x(t.file_id)}',this)">${isFav?'♥':'♡'}</button>
+    </div>`;
+  });
+  return html;
 }
 
 function empty(text) {
@@ -736,15 +817,49 @@ function empty(text) {
 
 let audio = new Audio();
 let currentTrack = null;
+let currentPlaylist = [];  // треки текущего контекста для автопереключения
+let currentIndex = -1;
+let isSeeking = false;
 let botUsername = null;
+let _prevVol = 1;
 
-// Получаем username бота при старте
+audio.preload = 'metadata';  // быстрый старт — только метаданные сначала
+
 async function fetchBotUsername() {
   try {
-    const r = await fetch(`${BOT_API}/bot-info`, { signal: AbortSignal.timeout(3000) });
+    const r = await fetch(`${BOT_API}/bot-info`, {
+      signal: AbortSignal.timeout(3000),
+      headers: {'bypass-tunnel-reminder':'1'}
+    });
     const d = await r.json();
     botUsername = d.username;
   } catch(e) {}
+}
+
+// ── Seek ──────────────────────────────────────────────────────────────────
+let _seekBar = null;
+
+function seekStart(e) {
+  e.preventDefault();
+  _seekBar = document.getElementById('playerSeek');
+  isSeeking = true;
+  seekMove(e);
+  const up = () => { isSeeking = false; document.removeEventListener('mousemove', seekMove); document.removeEventListener('mouseup', up); document.removeEventListener('touchmove', seekMove); document.removeEventListener('touchend', up); };
+  document.addEventListener('mousemove', seekMove);
+  document.addEventListener('mouseup', up);
+  document.addEventListener('touchmove', seekMove, {passive:false});
+  document.addEventListener('touchend', up);
+}
+
+function seekMove(e) {
+  if (!isSeeking || !audio.duration || !_seekBar) return;
+  e.preventDefault();
+  const rect = _seekBar.getBoundingClientRect();
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const pct = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+  audio.currentTime = pct * audio.duration;
+  document.getElementById('playerFill').style.width = (pct * 100) + '%';
+  document.getElementById('timeCurrent').textContent = fmtTime(audio.currentTime);
 }
 
 function fmtTime(s) {
@@ -754,10 +869,9 @@ function fmtTime(s) {
 }
 
 audio.addEventListener('timeupdate', () => {
-  if (!audio.duration) return;
+  if (isSeeking || !audio.duration) return;
   const pct = (audio.currentTime / audio.duration) * 100;
   document.getElementById('playerFill').style.width = pct + '%';
-  document.getElementById('playerFill').style.transition = 'none';
   document.getElementById('timeCurrent').textContent = fmtTime(audio.currentTime);
 });
 
@@ -765,115 +879,161 @@ audio.addEventListener('loadedmetadata', () => {
   document.getElementById('timeDuration').textContent = fmtTime(audio.duration);
 });
 
-function setVolume(val) {
-  audio.volume = val / 100;
-  const icon = document.querySelector('.volume-icon');
-  if (icon) icon.textContent = val == 0 ? '🔇' : val < 50 ? '🔉' : '🔊';
-  // Обновляем градиент слайдера
-  const slider = document.getElementById('volumeSlider');
-  if (slider) slider.style.background = `linear-gradient(to right, var(--accent) ${val}%, var(--surface3) ${val}%)`;
-}
-
-function toggleMute() {
-  const slider = document.getElementById('volumeSlider');
-  if (!slider) return;
-  if (audio.volume > 0) {
-    audio._prevVol = audio.volume;
-    slider.value = 0;
-  } else {
-    slider.value = Math.round((audio._prevVol || 1) * 100);
-  }
-  setVolume(slider.value);
-}
-
 audio.addEventListener('ended', () => {
-  document.getElementById('playBtn').textContent = '▶';
+  setPlayIcon(false);
+  // Автопереключение — следующий трек
+  if (currentPlaylist.length > 1) {
+    const next = (currentIndex + 1) % currentPlaylist.length;
+    playTrack(currentPlaylist[next], next);
+  }
 });
+
+audio.addEventListener('playing', () => setPlayIcon(true));
+audio.addEventListener('pause', () => setPlayIcon(false));
 
 audio.addEventListener('error', () => {
-  if (!audio.src || audio.src === window.location.href) return; // пустой src — игнорируем
+  if (!audio.src || audio.src === window.location.href) return;
   toast('Ошибка воспроизведения');
-  document.getElementById('playBtn').textContent = '▶';
+  setPlayIcon(false);
 });
 
-function playTrack(t) {
+// ── Download ───────────────────────────────────────────────────────────────
+function downloadTrack(t) {
+  if (!t || !BOT_API) return;
+  const url = `${BOT_API}/stream/${encodeURIComponent(t.file_id)}`;
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${t.artist} - ${t.title}.mp3`;
+  a.target = '_blank';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  toast('Загрузка началась...');
+}
+
+// ── Cover ──────────────────────────────────────────────────────────────────
+function getCoverUrl(t) {
+  if (!t || !t.cover) return null;
+  // Если cover выглядит как Telegram file_id (не URL и не data:)
+  if (!t.cover.startsWith('http') && !t.cover.startsWith('data:') && BOT_API) {
+    return `${BOT_API}/stream/cover/${encodeURIComponent(t.cover)}`;
+  }
+  return t.cover;
+}
+
+// ── Play ───────────────────────────────────────────────────────────────────
+function playTrack(t, idx) {
   if (!BOT_API) { toast('Нет подключения к серверу'); return; }
   currentTrack = t;
+  if (idx !== undefined) currentIndex = idx;
 
-  // Обновляем UI плеера
   document.getElementById('playerArtist').textContent = t.artist || '';
   document.getElementById('playerTitle').textContent = t.title || '';
+  document.getElementById('timeDuration').textContent = '0:00';
 
   const cover = document.getElementById('playerCover');
-  cover.innerHTML = t.cover
-    ? `<img src="${x(t.cover)}" loading="lazy">`
-    : `<div style="width:100%;height:100%;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-size:18px">♪</div>`;
+  const coverUrl = getCoverUrl(t);
+  cover.innerHTML = coverUrl
+    ? `<img src="${x(coverUrl)}" loading="lazy" onerror="this.parentNode.innerHTML='<svg width=18 height=18 viewBox=\'0 0 24 24\' fill=\'var(--text3)\'><path d=\'M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z\'/></svg>'">`
+    : `<svg width="18" height="18" viewBox="0 0 24 24" fill="var(--text3)"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/></svg>`;
 
-  // Стримим аудио через наш прокси
   const streamUrl = `${BOT_API}/stream/${encodeURIComponent(t.file_id)}`;
   audio.src = streamUrl;
   audio.load();
-  audio.play().then(() => {
-    document.getElementById('playBtn').textContent = '⏸';
-  }).catch(e => {
+  audio.play().catch(e => {
     toast('Не удалось воспроизвести');
     console.error('Play error:', e);
   });
 
-  // Показываем плеер
   document.getElementById('player').classList.add('show');
+  document.body.style.paddingBottom = '140px';
+}
 
-  // Добавляем отступ снизу чтобы контент не прятался под плеером
-  document.body.style.paddingBottom = '80px';
+function setPlayContext(tracks, startIdx) {
+  currentPlaylist = tracks || [];
+  playTrack(currentPlaylist[startIdx], startIdx);
+}
+
+function skipTrack(dir) {
+  if (!currentPlaylist.length) return;
+  const next = ((currentIndex + dir) + currentPlaylist.length) % currentPlaylist.length;
+  playTrack(currentPlaylist[next], next);
+}
+
+function setPlayIcon(playing) {
+  const el = document.getElementById('playIcon');
+  if (!el) return;
+  el.innerHTML = playing
+    ? '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>'  // pause
+    : '<path d="M8 5v14l11-7z"/>';                      // play
 }
 
 function togglePlay() {
   if (!currentTrack) return;
-  if (audio.paused) {
-    audio.play();
-    document.getElementById('playBtn').textContent = '⏸';
-  } else {
-    audio.pause();
-    document.getElementById('playBtn').textContent = '▶';
-  }
-}
-
-function seekAudio(e) {
-  if (!audio.duration) return;
-  const bar = document.getElementById('playerProgress');
-  const pct = e.offsetX / bar.offsetWidth;
-  audio.currentTime = pct * audio.duration;
+  if (audio.paused) { audio.play(); }
+  else { audio.pause(); }
 }
 
 function closePlayer() {
   audio.pause();
   audio.removeAttribute('src');
-  audio.load(); // сбрасывает состояние без error event
+  audio.load();
   currentTrack = null;
   document.getElementById('player').classList.remove('show');
   document.body.style.paddingBottom = '';
-  document.getElementById('playBtn').textContent = '▶';
+  setPlayIcon(false);
   document.getElementById('playerFill').style.width = '0%';
+  document.getElementById('timeCurrent').textContent = '0:00';
+  document.getElementById('timeDuration').textContent = '0:00';
 }
 
+// ── Volume ─────────────────────────────────────────────────────────────────
+function setVolume(val) {
+  val = parseInt(val);
+  audio.volume = val / 100;
+  const slider = document.getElementById('volSlider');
+  if (slider) slider.style.background =
+    `linear-gradient(to right, var(--accent) ${val}%, var(--surface3) ${val}%)`;
+  updateVolIcon(val);
+}
+
+function updateVolIcon(val) {
+  const el = document.getElementById('volIcon');
+  if (!el) return;
+  if (val == 0)
+    el.innerHTML = '<path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>';
+  else if (val < 50)
+    el.innerHTML = '<path d="M18.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM5 9v6h4l5 5V4L9 9H5z"/>';
+  else
+    el.innerHTML = '<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>';
+}
+
+function toggleMute() {
+  const slider = document.getElementById('volSlider');
+  if (!slider) return;
+  if (audio.volume > 0) {
+    _prevVol = audio.volume;
+    slider.value = 0;
+  } else {
+    slider.value = Math.round(_prevVol * 100);
+  }
+  setVolume(slider.value);
+}
+
+// ── Telegram ───────────────────────────────────────────────────────────────
 function openInTelegram() {
   if (!currentTrack) return;
   if (tg?.sendData && tg.initData) {
-    // Внутри Telegram WebApp — отправляем данные боту
     tg.sendData(JSON.stringify({ action: 'open_in_tg', file_id: currentTrack.file_id }));
   } else if (botUsername) {
-    // Вне Telegram — открываем inline-запрос: бот пришлёт трек в личку
-    const query = encodeURIComponent(`${currentTrack.artist} ${currentTrack.title}`);
     window.open(`https://t.me/${botUsername}?start=track_${encodeURIComponent(currentTrack.file_id)}`, '_blank');
   } else {
-    toast('Загрузка...');
     fetchBotUsername().then(() => {
       if (botUsername) openInTelegram();
       else toast('Не удалось получить имя бота');
     });
   }
 }
-
 function toggleFav(fileId, btn) {
   if (favorites.has(fileId)) { favorites.delete(fileId); btn.textContent = '♡'; btn.classList.remove('on'); }
   else { favorites.add(fileId); btn.textContent = '♥'; btn.classList.add('on'); }
@@ -895,12 +1055,15 @@ function x(s) {
 // ── INIT ─────────────────────────────────────
 
 (async () => {
+  setVolume(100);
   await autoFetchTunnelUrl();
   if (BOT_API) {
     await checkConnection();
     fetchBotUsername();
+    loadTab('home');
+  } else {
+    showApiSetup();
   }
-  loadTab('home');
 })();
 </script>
 </body>

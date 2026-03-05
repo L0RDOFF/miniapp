@@ -496,7 +496,7 @@ const tg = window.Telegram?.WebApp;
 if (tg) { tg.ready(); tg.expand(); }
 const USER_ID = tg?.initDataUnsafe?.user?.id || 0;
 
-let BOT_API    = localStorage.getItem('mab_api_url') || 'https://cddc0976f119254c-185-97-201-214.serveousercontent.com';
+let BOT_API    = localStorage.getItem('mab_api_url') || '';
 let allTracks  = [];
 let playlists  = [];
 let favorites  = new Set(JSON.parse(localStorage.getItem('mab_favs') || '[]'));
@@ -565,10 +565,14 @@ async function checkConnection() {
 // ── SETUP ────────────────────────────────────
 
 function showApiSetup(errorMsg) {
-  closeSearch();
-  closeDetail();
-  document.getElementById('mainView').style.display = 'block';
-  document.getElementById('searchView').classList.remove('show');
+  try { closeSearch(); } catch(e) {}
+  try { closeDetail(); } catch(e) {}
+  const mainView = document.getElementById('mainView');
+  const searchView = document.getElementById('searchView');
+  const tabContent = document.getElementById('tabContent');
+  if (mainView) mainView.style.display = 'block';
+  if (searchView) searchView.classList.remove('show');
+  if (!tabContent) return;
   const errHtml = errorMsg
     ? '<div class="setup-error">⚠ ' + x(errorMsg) + '</div>'
     : '<div class="setup-hint">Скопируй URL из чата бота и вставь сюда</div>';
@@ -599,6 +603,23 @@ async function pasteUrl() {
       applyApiUrl();
     } else { toast('Не похоже на URL'); }
   } catch(e) { toast('Вставь вручную (Ctrl+V)'); }
+}
+
+function showDiagLog() {
+  const existing = document.getElementById('diagPanel');
+  if (existing) { existing.remove(); return; }
+  const div = document.createElement('div');
+  div.id = 'diagPanel';
+  div.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#0a0a0a;border-top:2px solid #c8f53a;max-height:50vh;display:flex;flex-direction:column;';
+  div.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 14px;border-bottom:1px solid #1e1e1e;flex-shrink:0"><span style="font-size:12px;font-weight:700;color:#c8f53a;font-family:monospace">Diagnostic Log</span><div style="display:flex;gap:8px"><button onclick="navigator.clipboard.writeText(_diagLog.join('\n')).then(()=>toast('OK'))" style="background:#1e1e1e;border:1px solid #333;color:#c8f53a;font-size:11px;padding:3px 10px;border-radius:6px;cursor:pointer">Copy</button><button onclick="document.getElementById('diagPanel').remove()" style="background:#1e1e1e;border:1px solid #333;color:#777;font-size:12px;padding:3px 10px;border-radius:6px;cursor:pointer">X</button></div></div><pre id="diagLogContent" style="flex:1;overflow-y:auto;margin:0;padding:10px 14px;font-family:monospace;font-size:11px;color:#bbb;line-height:1.7;white-space:pre-wrap;word-break:break-all;">' + (_diagLog.slice(-50).join('\n') || '(empty)') + '</pre>';
+  document.body.appendChild(div);
+}
+
+async function retryConnection() {
+  diagLog('=== retryConnection ===');
+  const ok = await checkConnection();
+  if (ok) { toast('✅ Подключено!'); setTimeout(() => loadTab(currentTab), 500); }
+  else showApiSetup('Сервер не отвечает. Проверь start.bat');
 }
 
 async function applyApiUrl() {

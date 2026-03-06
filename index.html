@@ -335,190 +335,56 @@ body {
 
 .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text3); flex-shrink: 0; transition: background 0.3s; }
 .status-dot.online { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+
 /* ── STUDIO ── */
-.studio-search-wrap {
-  display: flex; gap: 8px; margin-bottom: 16px;
-}
-.studio-search-input {
-  flex: 1; padding: 10px 14px;
-  background: var(--surface2); border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 100px; color: var(--text); font-size: 14px;
-  font-family: 'Inter', sans-serif; outline: none;
-  transition: border-color 0.2s;
-}
-.studio-search-input:focus { border-color: var(--accent); }
-.studio-search-btn {
-  padding: 10px 18px; background: var(--accent); border: none;
-  border-radius: 100px; color: #000; font-size: 13px; font-weight: 700;
-  font-family: 'Inter', sans-serif; cursor: pointer; white-space: nowrap;
-  transition: opacity 0.15s;
-}
-.studio-search-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.studio-search-wrap { display:flex; gap:8px; margin-bottom:14px; }
+.studio-search-input { flex:1; padding:10px 14px; background:var(--surface2); border:1px solid rgba(255,255,255,0.08); border-radius:100px; color:var(--text); font-size:14px; font-family:'Inter',sans-serif; outline:none; transition:border-color 0.2s; }
+.studio-search-input:focus { border-color:var(--accent); }
+.studio-search-btn { padding:10px 18px; background:var(--accent); border:none; border-radius:100px; color:#000; font-size:13px; font-weight:700; font-family:'Inter',sans-serif; cursor:pointer; white-space:nowrap; transition:opacity 0.15s; }
+.studio-search-btn:disabled { opacity:0.5; cursor:not-allowed; }
+.studio-filter-bar { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px; flex-wrap:wrap; }
+.studio-filters { display:flex; gap:6px; }
+.sfilter { padding:5px 12px; border-radius:100px; border:1px solid rgba(255,255,255,0.08); font-size:11px; font-weight:600; font-family:'Inter',sans-serif; cursor:pointer; background:var(--surface2); color:var(--text2); transition:all 0.15s; white-space:nowrap; }
+.sfilter.active { background:var(--accent); color:#000; border-color:transparent; }
+.studio-sort-select { background:var(--surface2); border:1px solid rgba(255,255,255,0.08); border-radius:var(--radius-sm); color:var(--text2); font-size:11px; padding:5px 8px; cursor:pointer; font-family:'Inter',sans-serif; outline:none; }
+.studio-result { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.04); }
+.studio-result:last-child { border-bottom:none; }
+.studio-thumb { width:46px; height:46px; border-radius:var(--radius-sm); background:var(--surface2); flex-shrink:0; overflow:hidden; display:flex; align-items:center; justify-content:center; }
+.studio-result-info { flex:1; min-width:0; }
+.studio-result-artist { font-size:11px; color:var(--text2); margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.studio-result-title { font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.studio-result-meta { font-size:10px; color:var(--text3); margin-top:2px; }
+.sr-action-btn { width:32px; height:32px; border-radius:50%; border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; transition:transform 0.15s,opacity 0.15s; }
+.sr-action-btn:active { transform:scale(0.88); }
+.sr-add { background:var(--accent); color:#000; }
+.sr-done { background:var(--surface3); color:var(--text3); cursor:default; }
+.sr-preview-btn { width:32px; height:32px; border-radius:50%; border:1px solid rgba(255,255,255,0.1); background:var(--surface2); color:var(--text2); display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; transition:all 0.15s; }
+.sr-preview-btn.playing { background:var(--surface3); color:var(--accent); border-color:var(--accent); }
+.srp { width:100%; height:100%; border-radius:var(--radius-sm); background:linear-gradient(135deg,var(--surface2),var(--surface3)); }
+.job-card { background:var(--surface); border-radius:var(--radius); border:1px solid rgba(255,255,255,0.06); padding:14px; margin-bottom:10px; transition:border-color 0.3s; }
+.job-card.ready { border-color:rgba(200,245,58,0.35); }
+.job-card.error { border-color:rgba(255,80,80,0.35); }
+.job-card-artist { font-size:11px; color:var(--text2); }
+.job-card-title { font-size:13px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.job-step { font-size:12px; color:var(--text2); margin:8px 0; min-height:18px; }
+.job-progress { height:3px; background:var(--surface3); border-radius:2px; overflow:hidden; margin-bottom:10px; }
+.job-progress-fill { height:100%; background:var(--accent); border-radius:2px; width:0%; transition:width 0.4s ease; animation:progress-pulse 1.5s ease-in-out infinite; }
+.job-card.ready .job-progress-fill,.job-card.error .job-progress-fill { animation:none; }
+.job-card.error .job-progress-fill { background:#ff5050; }
+@keyframes progress-pulse { 0%,100%{opacity:1}50%{opacity:0.6} }
+.job-actions { display:flex; gap:8px; }
+.job-publish-btn { flex:1; height:36px; border-radius:100px; background:var(--accent); border:none; color:#000; font-size:13px; font-weight:700; font-family:'Inter',sans-serif; cursor:pointer; }
+.job-publish-btn:disabled { opacity:0.4; cursor:not-allowed; }
+.job-dismiss-btn { width:36px; height:36px; border-radius:50%; background:var(--surface2); border:none; color:var(--text2); font-size:16px; cursor:pointer; }
+.pl-sheet { position:fixed; inset:0; z-index:710; background:rgba(0,0,0,0.7); backdrop-filter:blur(10px); display:flex; align-items:flex-end; opacity:0; pointer-events:none; transition:opacity 0.25s; }
+.pl-sheet.show { opacity:1; pointer-events:all; }
+.pl-sheet-inner { width:100%; background:var(--surface); border-radius:var(--radius) var(--radius) 0 0; padding:20px 20px calc(20px + env(safe-area-inset-bottom)); transform:translateY(100%); transition:transform 0.3s cubic-bezier(0.4,0,0.2,1); }
+.pl-sheet.show .pl-sheet-inner { transform:translateY(0); }
+.pl-sheet-title { font-family:'Unbounded',sans-serif; font-size:14px; font-weight:700; margin-bottom:14px; }
+.pl-option { display:flex; align-items:center; gap:10px; width:100%; padding:12px; border-radius:var(--radius-sm); background:none; border:none; color:var(--text); font-size:14px; cursor:pointer; text-align:left; transition:background 0.15s; }
+.pl-option:active { background:var(--surface2); }
+.pl-option-count { font-size:11px; color:var(--text3); margin-left:auto; }
 
-.studio-result {
-  display: flex; align-items: center; gap: 10px;
-  padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
-}
-.studio-result:last-child { border-bottom: none; }
-.studio-thumb {
-  width: 46px; height: 46px; border-radius: var(--radius-sm);
-  background: var(--surface2); flex-shrink: 0; overflow: hidden;
-  display: flex; align-items: center; justify-content: center;
-}
-.studio-thumb img { width: 100%; height: 100%; object-fit: cover; }
-.studio-result-info { flex: 1; min-width: 0; }
-.studio-result-artist { font-size: 11px; color: var(--text2); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.studio-result-title  { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.studio-result-meta   { font-size: 10px; color: var(--text3); margin-top: 2px; }
-.studio-add-btn {
-  width: 34px; height: 34px; border-radius: 50%; border: none;
-  background: var(--accent); color: #000; font-size: 18px; font-weight: 700;
-  cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
-  transition: transform 0.15s, opacity 0.15s;
-}
-.studio-add-btn:active { transform: scale(0.9); }
-.studio-add-btn.done   { background: var(--surface3); color: var(--text3); cursor: default; font-size: 14px; }
-.studio-add-btn.in-arc { background: var(--surface3); color: var(--text3); cursor: default; font-size: 14px; }
-
-/* Job cards */
-.job-card {
-  background: var(--surface); border-radius: var(--radius);
-  border: 1px solid rgba(255,255,255,0.06);
-  padding: 14px; margin-bottom: 10px;
-  transition: border-color 0.3s;
-}
-.job-card.ready  { border-color: rgba(200,245,58,0.35); }
-.job-card.error  { border-color: rgba(255,80,80,0.35); }
-.job-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-.job-card-info   { flex: 1; min-width: 0; }
-.job-card-artist { font-size: 11px; color: var(--text2); }
-.job-card-title  { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.job-step        { font-size: 12px; color: var(--text2); margin-bottom: 10px; min-height: 18px; }
-.job-progress    { height: 3px; background: var(--surface3); border-radius: 2px; overflow: hidden; margin-bottom: 10px; }
-.job-progress-fill {
-  height: 100%; background: var(--accent); border-radius: 2px;
-  width: 0%; transition: width 0.4s ease;
-  animation: progress-pulse 1.5s ease-in-out infinite;
-}
-.job-card.ready  .job-progress-fill { width: 100%; animation: none; }
-.job-card.error  .job-progress-fill { width: 100%; background: #ff5050; animation: none; }
-@keyframes progress-pulse {
-  0%, 100% { opacity: 1; } 50% { opacity: 0.6; }
-}
-.job-actions     { display: flex; gap: 8px; }
-.job-publish-btn {
-  flex: 1; height: 36px; border-radius: 100px;
-  background: var(--accent); border: none; color: #000;
-  font-size: 13px; font-weight: 700; font-family: 'Inter', sans-serif;
-  cursor: pointer; transition: opacity 0.15s;
-}
-.job-publish-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.job-dismiss-btn {
-  width: 36px; height: 36px; border-radius: 50%;
-  background: var(--surface2); border: none; color: var(--text2);
-  font-size: 16px; cursor: pointer;
-}
-
-/* Edit track modal */
-.edit-modal {
-  position: fixed; inset: 0; z-index: 700;
-  background: rgba(0,0,0,0.7); backdrop-filter: blur(10px);
-  display: flex; align-items: flex-end;
-  opacity: 0; pointer-events: none; transition: opacity 0.25s;
-}
-.edit-modal.show { opacity: 1; pointer-events: all; }
-.edit-sheet {
-  width: 100%; background: var(--surface);
-  border-radius: var(--radius) var(--radius) 0 0;
-  padding: 20px 20px calc(20px + env(safe-area-inset-bottom));
-  transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
-}
-.edit-modal.show .edit-sheet { transform: translateY(0); }
-.edit-sheet-title { font-family: 'Unbounded', sans-serif; font-size: 14px; font-weight: 700; margin-bottom: 16px; }
-.edit-field { margin-bottom: 12px; }
-.edit-label { font-size: 11px; color: var(--text2); margin-bottom: 4px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
-.edit-input {
-  width: 100%; padding: 10px 12px;
-  background: var(--surface2); border: 1px solid rgba(255,255,255,0.08);
-  border-radius: var(--radius-sm); color: var(--text); font-size: 14px;
-  font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s;
-}
-.edit-input:focus { border-color: var(--accent); }
-.edit-actions { display: flex; gap: 8px; margin-top: 16px; }
-.edit-save-btn {
-  flex: 1; height: 42px; background: var(--accent); border: none;
-  border-radius: 100px; color: #000; font-size: 14px; font-weight: 700;
-  font-family: 'Inter', sans-serif; cursor: pointer;
-}
-.edit-cancel-btn {
-  height: 42px; padding: 0 20px; background: var(--surface2); border: none;
-  border-radius: 100px; color: var(--text2); font-size: 14px;
-  font-family: 'Inter', sans-serif; cursor: pointer;
-}
-
-/* Playlist picker sheet */
-.pl-sheet {
-  position: fixed; inset: 0; z-index: 710;
-  background: rgba(0,0,0,0.7); backdrop-filter: blur(10px);
-  display: flex; align-items: flex-end;
-  opacity: 0; pointer-events: none; transition: opacity 0.25s;
-}
-.pl-sheet.show { opacity: 1; pointer-events: all; }
-.pl-sheet-inner {
-  width: 100%; background: var(--surface);
-  border-radius: var(--radius) var(--radius) 0 0;
-  padding: 20px 20px calc(20px + env(safe-area-inset-bottom));
-  transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
-}
-.pl-sheet.show .pl-sheet-inner { transform: translateY(0); }
-.pl-sheet-title { font-family: 'Unbounded', sans-serif; font-size: 14px; font-weight: 700; margin-bottom: 14px; }
-.pl-option {
-  display: flex; align-items: center; gap: 10px; width: 100%;
-  padding: 12px; border-radius: var(--radius-sm);
-  background: none; border: none; color: var(--text);
-  font-size: 14px; cursor: pointer; text-align: left;
-  transition: background 0.15s;
-}
-.pl-option:active { background: var(--surface2); }
-.pl-option-count { font-size: 11px; color: var(--text3); margin-left: auto; }
-
-.studio-filter-bar {
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 10px; margin-bottom: 12px; flex-wrap: wrap;
-}
-.studio-filters { display: flex; gap: 6px; }
-.sfilter {
-  padding: 5px 12px; border-radius: 100px; border: 1px solid rgba(255,255,255,0.08);
-  font-size: 11px; font-weight: 600; font-family: 'Inter', sans-serif;
-  cursor: pointer; background: var(--surface2); color: var(--text2);
-  transition: all 0.15s; white-space: nowrap;
-}
-.sfilter.active { background: var(--accent); color: #000; border-color: transparent; }
-.studio-sort-select {
-  background: var(--surface2); border: 1px solid rgba(255,255,255,0.08);
-  border-radius: var(--radius-sm); color: var(--text2); font-size: 11px;
-  padding: 5px 8px; cursor: pointer; font-family: 'Inter', sans-serif; outline: none;
-}
-
-.sr-action-btn {
-  width: 32px; height: 32px; border-radius: 50%; border: none;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; flex-shrink: 0; transition: transform 0.15s, opacity 0.15s;
-}
-.sr-action-btn:active { transform: scale(0.88); }
-.sr-add  { background: var(--accent); color: #000; }
-.sr-done { background: var(--surface3); color: var(--text3); cursor: default; }
-.sr-preview-btn {
-  width: 32px; height: 32px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1);
-  background: var(--surface2); color: var(--text2);
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; flex-shrink: 0; transition: all 0.15s;
-}
-.sr-preview-btn.playing { background: var(--surface3); color: var(--accent); border-color: var(--accent); }
-.srp {
-  width: 100%; height: 100%; border-radius: var(--radius-sm);
-  background: linear-gradient(135deg, var(--surface2), var(--surface3));
-}
 </style>
 </head>
 <body>
@@ -535,7 +401,7 @@ body {
   <div class="tabs-wrap" id="tabsWrap">
     <button class="tab active" onclick="switchTab('home',this)">Главная</button>
     <button class="tab" onclick="switchTab('playlists',this)">Плейлисты</button>
-    <button class="tab" id="studioTab" style="display:none" onclick="switchTab('studio',this)">Студия</button>
+    <button class="tab" id="studioTab" onclick="switchTab('studio',this)">Студия</button>
   </div>
   <div class="search-header" id="searchHeader">
     <button class="back-btn-search" onclick="closeSearch()">←</button>
@@ -721,13 +587,10 @@ async function applyApiUrl() {
   if (ok) {
     toast('Подключено ✓');
     fetchBotUsername();
-    // Явно переключаемся на home — убираем экран настроек
     document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === 0));
     currentTab = 'home';
     loadTab('home');
-  } else {
-    toast('Сервер не отвечает');
-  }
+  } else toast('Сервер не отвечает');
 }
 
 // ── NAV ──────────────────────────────────────
@@ -746,8 +609,6 @@ async function loadTab(tab) {
   if (!BOT_API) { showApiSetup(); return; }
   if      (tab === 'home')      await renderHome(el);
   else if (tab === 'playlists') await renderPlaylists(el);
-  else if (tab === 'recent')    await renderRecent(el);
-  else if (tab === 'favorites') await renderFavorites(el);
   else if (tab === 'studio')    await renderStudio(el);
 }
 
@@ -759,24 +620,9 @@ async function renderHome(el) {
   allTracks = recent || [];
   if (!playlists.length && !allTracks.length) { el.innerHTML = empty('Архив пуст'); return; }
   let html = `<div class="hero"><div class="hero-label">Личный архив</div><div class="hero-title">Music Archive</div><div class="hero-sub">${allTracks.length ? allTracks.length + '+ треков' : 'Добавляй треки через бота'}</div></div>`;
-
-  // Плейлисты + карточка Избранного
-  const favCount = favorites.size;
-  const favCard = `
-    <div class="playlist-card" onclick="openFavoritesPlaylist()">
-      <div class="playlist-card-bg">
-        <div style="width:100%;height:100%;background:linear-gradient(135deg,#1a0a0a,#2a1010);display:flex;align-items:center;justify-content:center;font-size:36px">♥</div>
-      </div>
-      <div class="playlist-card-overlay"></div>
-      <div class="playlist-card-info">
-        <div class="playlist-name">Избранное</div>
-        <div class="playlist-count">${favCount} треков</div>
-      </div>
-    </div>`;
-
-  if (playlists.length || favCount > 0) {
-    html += `<div class="section-title">Плейлисты</div><div class="playlists-grid">`;
-    html += favCard;
+  const favCard = `<div class="playlist-card" onclick="openFavoritesPlaylist()"><div class="playlist-card-bg"><div style="width:100%;height:100%;background:linear-gradient(135deg,#1a0a0a,#2a1010);display:flex;align-items:center;justify-content:center;font-size:36px">♥</div></div><div class="playlist-card-overlay"></div><div class="playlist-card-info"><div class="playlist-name">Избранное</div><div class="playlist-count">${favorites.size} треков</div></div></div>`;
+  if (playlists.length || favorites.size > 0) {
+    html += `<div class="section-title">Плейлисты</div><div class="playlists-grid">${favCard}`;
     playlists.forEach(pl => { html += playlistCard(pl); });
     html += `</div>`;
   }
@@ -795,35 +641,14 @@ async function openFavoritesPlaylist() {
   document.getElementById('detailTitleBar').textContent = 'Избранное';
   const content = document.getElementById('detailContent');
   content.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
-
   if (!favorites.size) {
-    content.innerHTML = `
-      <div class="detail-hero">
-        <div class="detail-cover"><div style="width:100%;height:100%;background:linear-gradient(135deg,#1a0a0a,#2a1010);display:flex;align-items:center;justify-content:center;font-size:40px">♥</div></div>
-        <div><div class="detail-name">Избранное</div><div class="detail-count">0 треков</div></div>
-      </div>
-      <div style="padding:0 16px">${empty('Нажми ♡ на любом треке')}</div>`;
+    content.innerHTML = `<div class="detail-hero"><div class="detail-cover"><div style="width:100%;height:100%;background:linear-gradient(135deg,#1a0a0a,#2a1010);display:flex;align-items:center;justify-content:center;font-size:40px">♥</div></div><div><div class="detail-name">Избранное</div><div class="detail-count">0 треков</div></div></div>${empty('Нажми ♡ на любом треке')}`;
     return;
   }
-
   const tracks = await api('/tracks/recent?limit=500');
   const favs = (tracks || []).filter(t => favorites.has(t.file_id));
-
-  const coverHtml = `<div style="width:100%;height:100%;background:linear-gradient(135deg,#1a0a0a,#2a1010);display:flex;align-items:center;justify-content:center;font-size:40px">♥</div>`;
-  let html = `
-    <div class="detail-hero">
-      <div class="detail-cover">${coverHtml}</div>
-      <div>
-        <div class="detail-name">Избранное</div>
-        <div class="detail-count">${favs.length} треков</div>
-      </div>
-    </div>
-    <div class="detail-btns">
-      <button class="btn-primary" onclick="setPlayContext(${JSON.stringify(favs).replace(/"/g,'&quot;')}, 0)">▶ Слушать</button>
-    </div>
-    <div style="padding:0 16px 40px;">`;
-  html += favs.length ? buildTrackRows(favs) : empty('Треки не найдены в архиве');
-  content.innerHTML = html + '</div>';
+  content.innerHTML = `<div class="detail-hero"><div class="detail-cover"><div style="width:100%;height:100%;background:linear-gradient(135deg,#1a0a0a,#2a1010);display:flex;align-items:center;justify-content:center;font-size:40px">♥</div></div><div><div class="detail-name">Избранное</div><div class="detail-count">${favs.length} треков</div></div></div><div class="detail-btns"><button class="btn-primary" onclick="playAll()">▶ Слушать</button></div><div style="padding:0 16px 40px">${favs.length ? buildTrackRows(favs) : empty('Треки не найдены')}</div>`;
+  function playAll() { if (favs.length) { currentPlaylist = favs; playTrack(favs[0], 0); } }
 }
 
 async function renderPlaylists(el) {
@@ -1078,8 +903,6 @@ audio.addEventListener('timeupdate', function() {
   const pct = (audio.currentTime / audio.duration) * 100;
   document.getElementById('playerFill').style.width = pct + '%';
   document.getElementById('timeCurrent').textContent = fmtTime(audio.currentTime);
-  // Синхронизируем прогресс с системным плеером (каждые ~1 сек)
-  if (Math.round(audio.currentTime) % 2 === 0) _syncPositionState();
 });
 audio.addEventListener('loadedmetadata', function() {
   document.getElementById('timeDuration').textContent = fmtTime(audio.duration);
@@ -1091,17 +914,8 @@ audio.addEventListener('ended', function() {
     playTrack(currentPlaylist[next], next);
   }
 });
-audio.addEventListener('playing', function() {
-  setPlayIcon(true);
-  if ('mediaSession' in navigator) {
-    navigator.mediaSession.playbackState = 'playing';
-    _syncPositionState();
-  }
-});
-audio.addEventListener('pause', function() {
-  setPlayIcon(false);
-  if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
-});
+audio.addEventListener('playing', function() { setPlayIcon(true); });
+audio.addEventListener('pause', function() { setPlayIcon(false); });
 let _streamRetries = 0;
 audio.addEventListener('error', function() {
   if (!audio.src || audio.src === window.location.href) return;
@@ -1123,9 +937,7 @@ audio.addEventListener('playing', function() { _streamRetries = 0; });
 
 function getCoverUrl(t) {
   if (!t || !t.cover) return null;
-  // Прямой URL (http/https или data:)
   if (t.cover.startsWith('data:') || t.cover.startsWith('http')) return t.cover;
-  // Telegram file_id — проксируем через наш стрим
   if (BOT_API) return `${BOT_API}/stream/${encodeURIComponent(t.cover)}`;
   return null;
 }
@@ -1173,68 +985,16 @@ function playTrack(t, idx) {
     }
   });
   document.body.style.paddingBottom = '150px';
-  updateMediaSession(t, coverUrl);
-}
-
-// ── MEDIA SESSION (системный плеер телефона) ──────────────────────────────
-
-function updateMediaSession(t, coverUrl) {
-  if (!('mediaSession' in navigator)) return;
-
-  // Artwork: Media Session требует абсолютный URL
-  var artwork = [];
-  if (coverUrl) {
-    // Если URL относительный или data: — берём как есть, иначе нужен абсолютный
-    var absUrl = coverUrl.startsWith('http') || coverUrl.startsWith('data:')
-      ? coverUrl
-      : (window.location.origin + coverUrl);
-    artwork = [
-      { src: absUrl, sizes: '96x96',   type: 'image/jpeg' },
-      { src: absUrl, sizes: '256x256', type: 'image/jpeg' },
-      { src: absUrl, sizes: '512x512', type: 'image/jpeg' },
-    ];
-  }
-
-  navigator.mediaSession.metadata = new MediaMetadata({
-    title:  t.title  || '',
-    artist: t.artist || '',
-    album:  [t.year, t.genre].filter(Boolean).join(' · ') || 'Music Archive',
-    artwork: artwork
-  });
-
-  // Кнопки управления
-  navigator.mediaSession.setActionHandler('play',          function() { audio.play(); });
-  navigator.mediaSession.setActionHandler('pause',         function() { audio.pause(); });
-  navigator.mediaSession.setActionHandler('stop',          function() { closePlayer(); });
-  navigator.mediaSession.setActionHandler('previoustrack', function() { skipTrack(-1); });
-  navigator.mediaSession.setActionHandler('nexttrack',     function() { skipTrack(1); });
-
-  // Перемотка (+/- 10 сек и seekto по таймлайну)
-  navigator.mediaSession.setActionHandler('seekbackward', function(d) {
-    audio.currentTime = Math.max(0, audio.currentTime - (d.seekOffset || 10));
-    _syncPositionState();
-  });
-  navigator.mediaSession.setActionHandler('seekforward', function(d) {
-    audio.currentTime = Math.min(audio.duration || 0, audio.currentTime + (d.seekOffset || 10));
-    _syncPositionState();
-  });
-  navigator.mediaSession.setActionHandler('seekto', function(d) {
-    if (d.seekTime !== undefined && audio.duration) {
-      audio.currentTime = d.seekTime;
-      _syncPositionState();
-    }
-  });
-}
-
-function _syncPositionState() {
-  if (!('mediaSession' in navigator) || !audio.duration) return;
-  try {
-    navigator.mediaSession.setPositionState({
-      duration:     audio.duration,
-      playbackRate: audio.playbackRate || 1,
-      position:     Math.min(audio.currentTime, audio.duration)
+  if ('mediaSession' in navigator) {
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: t.title || '', artist: t.artist || '',
+      artwork: coverUrl ? [{src: coverUrl, sizes: '512x512', type: 'image/jpeg'}] : []
     });
-  } catch(e) {}
+    navigator.mediaSession.setActionHandler('play', function() { audio.play(); });
+    navigator.mediaSession.setActionHandler('pause', function() { audio.pause(); });
+    navigator.mediaSession.setActionHandler('previoustrack', function() { skipTrack(-1); });
+    navigator.mediaSession.setActionHandler('nexttrack', function() { skipTrack(1); });
+  }
 }
 
 function setPlayContext(tracks, startIdx) {
@@ -1273,10 +1033,6 @@ function closePlayer() {
   document.getElementById('playerFill').style.width = '0%';
   document.getElementById('timeCurrent').textContent = '0:00';
   document.getElementById('timeDuration').textContent = '0:00';
-  if ('mediaSession' in navigator) {
-    navigator.mediaSession.playbackState = 'none';
-    navigator.mediaSession.metadata = null;
-  }
 }
 
 function setVolume(val) {
@@ -1397,43 +1153,51 @@ function x(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
+// ── INIT ─────────────────────────────────────
+
+(async () => {
+  setVolume(100);
+  _initStudio();
+  await autoFetchTunnelUrl();
+  if (BOT_API) {
+    await checkConnection();
+    fetchBotUsername();
+    loadTab('home');
+  } else {
+    showApiSetup();
+  }
+})();
 
 // ══════════════════════════════════════════════
 //  STUDIO
 // ══════════════════════════════════════════════
 
-let _studioJobs      = {};
-let _studioPollers   = {};
-let _plSheetJobId    = null;
-let _studioResults   = [];
-let _studioFilter    = 'all';   // all | soundcloud | youtube
-let _studioSort      = 'default'; // default | duration_asc | duration_desc
-let _previewFileId   = null;    // file_id играющего превью в студии
+let _studioJobs    = {};
+let _studioPollers = {};
+let _plSheetJobId  = null;
+let _studioResults = [];
+let _studioFilter  = 'all';
+let _studioSort    = 'default';
+let _previewAudio  = null;
+let _previewIdx    = -1;
 
 function _initStudio() {
   document.getElementById('studioTab').style.display = '';
 }
 
-// ── Рендер главного экрана ───────────────────
-
 async function renderStudio(el) {
-  const jobCards = Object.values(_studioJobs)
-    .sort((a, b) => b.created_at - a.created_at)
-    .map(j => buildJobCard(j)).join('');
-
+  const jobCards = Object.values(_studioJobs).sort((a,b) => b.created_at - a.created_at).map(buildJobCard).join('');
   el.innerHTML = `
     <div class="studio-search-wrap">
-      <input class="studio-search-input" id="studioQ" type="search"
-             placeholder="Артист, название..." autocomplete="off"
-             onkeydown="if(event.key==='Enter')studioDoSearch()">
+      <input class="studio-search-input" id="studioQ" type="search" placeholder="Артист, название..." autocomplete="off" onkeydown="if(event.key==='Enter')studioDoSearch()">
       <button class="studio-search-btn" id="studioBtn" onclick="studioDoSearch()">Найти</button>
     </div>
     <div id="studioJobsArea">${jobCards ? `<div class="section-title">Загрузки</div>${jobCards}` : ''}</div>
     <div id="studioFilterBar" style="display:none" class="studio-filter-bar">
       <div class="studio-filters">
-        <button class="sfilter active" data-f="all"         onclick="studioSetFilter('all',this)">Все</button>
-        <button class="sfilter"        data-f="soundcloud"  onclick="studioSetFilter('soundcloud',this)">SoundCloud</button>
-        <button class="sfilter"        data-f="youtube"     onclick="studioSetFilter('youtube',this)">YouTube</button>
+        <button class="sfilter active" data-f="all" onclick="studioSetFilter('all',this)">Все</button>
+        <button class="sfilter" data-f="soundcloud" onclick="studioSetFilter('soundcloud',this)">SoundCloud</button>
+        <button class="sfilter" data-f="youtube" onclick="studioSetFilter('youtube',this)">YouTube</button>
       </div>
       <select class="studio-sort-select" onchange="studioSetSort(this.value)">
         <option value="default">По релевантности</option>
@@ -1444,8 +1208,6 @@ async function renderStudio(el) {
     <div id="studioResults"><div class="search-hint">Введи запрос чтобы найти треки</div></div>`;
 }
 
-// ── Поиск ────────────────────────────────────
-
 async function studioDoSearch() {
   const q = (document.getElementById('studioQ')?.value || '').trim();
   if (!q) return;
@@ -1454,20 +1216,17 @@ async function studioDoSearch() {
   if (btn) { btn.disabled = true; btn.textContent = '...'; }
   if (res) res.innerHTML = '<div class="loading"><div class="spinner"></div><span>Ищу...</span></div>';
   document.getElementById('studioFilterBar').style.display = 'none';
-
   try {
     const r = await studioApi(`/studio/search?q=${encodeURIComponent(q)}&limit=15`);
-    if (!r || r.error) {
-      if (res) res.innerHTML = `<div class="empty"><div class="empty-text">${r?.error || 'Ошибка соединения'}</div></div>`;
-      return;
-    }
+    if (!r) { if (res) res.innerHTML = '<div class="empty"><div class="empty-text">Нет ответа от сервера</div></div>'; return; }
+    if (r.error) { if (res) res.innerHTML = `<div class="empty"><div class="empty-text">${x(r.error)}</div></div>`; return; }
+    if (!r.length) { if (res) res.innerHTML = '<div class="empty"><div class="empty-text">Ничего не найдено</div></div>'; return; }
     _studioResults = r;
-    _studioFilter  = 'all';
-    _studioSort    = 'default';
-    // Сбрасываем фильтры в UI
+    _studioFilter = 'all'; _studioSort = 'default';
     document.querySelectorAll('.sfilter').forEach(b => b.classList.toggle('active', b.dataset.f === 'all'));
-    document.querySelector('.studio-sort-select') && (document.querySelector('.studio-sort-select').value = 'default');
-    document.getElementById('studioFilterBar').style.display = r.length ? 'flex' : 'none';
+    const sortEl = document.querySelector('.studio-sort-select');
+    if (sortEl) sortEl.value = 'default';
+    document.getElementById('studioFilterBar').style.display = 'flex';
     _renderStudioResults();
   } finally {
     if (btn) { btn.disabled = false; btn.textContent = 'Найти'; }
@@ -1481,10 +1240,7 @@ function studioSetFilter(f, btn) {
   _renderStudioResults();
 }
 
-function studioSetSort(s) {
-  _studioSort = s;
-  _renderStudioResults();
-}
+function studioSetSort(s) { _studioSort = s; _renderStudioResults(); }
 
 function _getFilteredSorted() {
   let items = _studioResults.slice();
@@ -1499,193 +1255,96 @@ function _renderStudioResults() {
   if (!res) return;
   const items = _getFilteredSorted();
   if (!items.length) { res.innerHTML = '<div class="empty"><div class="empty-text">Нет результатов</div></div>'; return; }
-  // Передаём оригинальный индекс чтобы studioAddTrack работал правильно
-  res.innerHTML = items.map(item => {
-    const origIdx = _studioResults.indexOf(item);
-    return buildStudioResult(item, origIdx);
-  }).join('');
+  res.innerHTML = items.map(item => buildStudioResult(item, _studioResults.indexOf(item))).join('');
 }
-
-// ── Карточка результата ──────────────────────
 
 function buildStudioResult(item, idx) {
-  const dur    = item.duration ? fmtTime(item.duration) : '';
-  const srcLabel = item.source === 'soundcloud' ? 'SC' : item.source === 'youtube' ? 'YT' : item.source.toUpperCase();
+  const dur = item.duration ? fmtTime(item.duration) : '';
+  const srcLabel = item.source === 'soundcloud' ? 'SC' : item.source === 'youtube' ? 'YT' : (item.source||'').toUpperCase();
   const srcColor = item.source === 'soundcloud' ? '#f50' : item.source === 'youtube' ? '#f00' : '#888';
-  const inArc  = item.in_archive;
-
+  const inArc = item.in_archive;
   const thumb = item.thumbnail
-    ? `<img src="${x(item.thumbnail)}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=srp></div>'" style="width:100%;height:100%;object-fit:cover;border-radius:var(--radius-sm)">`
-    : `<div class="srp"></div>`;
-
+    ? `<img src="${item.thumbnail}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=srp></div>'" style="width:100%;height:100%;object-fit:cover;border-radius:var(--radius-sm)">`
+    : '<div class="srp"></div>';
   const addBtn = inArc
-    ? `<div class="sr-action-btn sr-done" title="Уже в архиве">
-         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-       </div>`
-    : `<button class="sr-action-btn sr-add" onclick="studioAddTrack(${idx})" title="Добавить">
-         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-       </button>`;
-
-  const isPreview = _previewFileId === `preview_${idx}`;
-  const previewBtn = `
-    <button class="sr-preview-btn ${isPreview ? 'playing' : ''}" onclick="studioPreview(${idx},this)" title="Предпрослушка">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-        ${isPreview
-          ? '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>'
-          : '<path d="M8 5v14l11-7z"/>'}
-      </svg>
-    </button>`;
-
-  return `
-    <div class="studio-result" id="sr_${idx}">
-      <div class="studio-thumb">${thumb}</div>
-      <div class="studio-result-info">
-        <div class="studio-result-artist">${x(item.artist)}</div>
-        <div class="studio-result-title">${x(item.title)}</div>
-        <div class="studio-result-meta">
-          <span style="color:${srcColor};font-weight:600;font-size:10px">${srcLabel}</span>
-          ${dur ? `<span> · ${dur}</span>` : ''}
-          ${inArc ? `<span style="color:var(--accent)"> · в архиве</span>` : ''}
-        </div>
-      </div>
-      <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
-        ${previewBtn}
-        ${addBtn}
-      </div>
-    </div>`;
+    ? `<div class="sr-action-btn sr-done"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>`
+    : `<button class="sr-action-btn sr-add" onclick="studioAddTrack(${idx})"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg></button>`;
+  const isPlaying = _previewIdx === idx;
+  const prevBtn = `<button class="sr-preview-btn ${isPlaying?'playing':''}" onclick="studioPreview(${idx},this)">${isPlaying
+    ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>'
+    : '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>'}</button>`;
+  return `<div class="studio-result" id="sr_${idx}">
+    <div class="studio-thumb">${thumb}</div>
+    <div class="studio-result-info">
+      <div class="studio-result-artist">${x(item.artist)}</div>
+      <div class="studio-result-title">${x(item.title)}</div>
+      <div class="studio-result-meta"><span style="color:${srcColor};font-weight:600">${srcLabel}</span>${dur ? ' · '+dur : ''}${inArc ? ' · <span style="color:var(--accent)">в архиве</span>' : ''}</div>
+    </div>
+    <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">${prevBtn}${addBtn}</div>
+  </div>`;
 }
-
-// ── Предпрослушка ────────────────────────────
-
-let _previewAudio = null;
-let _previewIdx   = -1;
 
 function studioPreview(idx, btn) {
   const item = _studioResults[idx];
   if (!item?.url) return;
-
-  // Если уже играет этот — пауза
   if (_previewIdx === idx && _previewAudio && !_previewAudio.paused) {
-    _previewAudio.pause();
-    _previewIdx = -1;
-    _previewFileId = null;
-    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+    _previewAudio.pause(); _previewIdx = -1;
     btn.classList.remove('playing');
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
     return;
   }
-
-  // Останавливаем предыдущее
   if (_previewAudio) { _previewAudio.pause(); _previewAudio.src = ''; }
-  document.querySelectorAll('.sr-preview-btn').forEach(b => {
-    b.classList.remove('playing');
-    b.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
-  });
-
-  // Используем YouTube/SC URL напрямую через yt-dlp — но у нас нет прямого стрима
-  // Поэтому предпрослушка идёт через наш бэкенд /studio/preview
-  _previewIdx   = idx;
-  _previewFileId = `preview_${idx}`;
+  document.querySelectorAll('.sr-preview-btn').forEach(b => { b.classList.remove('playing'); b.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>'; });
+  _previewIdx = idx;
   btn.classList.add('playing');
   btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
-
-  _previewAudio = new Audio();
-  _previewAudio.crossOrigin = 'anonymous';
-  // Стримим через наш прокси-эндпоинт
-  const previewUrl = `${BOT_API}/studio/preview?url=${encodeURIComponent(item.url)}`;
-  const headers = { 'bypass-tunnel-reminder': '1' };
-
-  // Fetch с авторизацией → blob URL
-  fetch(previewUrl, { headers, signal: AbortSignal.timeout(15000) })
-    .then(r => {
-      if (!r.ok) throw new Error('preview failed');
-      return r.blob();
-    })
+  fetch(`${BOT_API}/studio/preview?url=${encodeURIComponent(item.url)}`, { headers:{'bypass-tunnel-reminder':'1'}, signal:AbortSignal.timeout(20000) })
+    .then(r => { if (!r.ok) throw new Error('failed'); return r.blob(); })
     .then(blob => {
       const url = URL.createObjectURL(blob);
-      _previewAudio.src = url;
-      _previewAudio.play().catch(() => {});
-      _previewAudio.onended = () => {
-        btn.classList.remove('playing');
-        btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
-        _previewIdx = -1;
-        URL.revokeObjectURL(url);
-      };
+      _previewAudio = new Audio(url);
+      _previewAudio.play().catch(()=>{});
+      _previewAudio.onended = () => { btn.classList.remove('playing'); btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>'; _previewIdx = -1; URL.revokeObjectURL(url); };
     })
-    .catch(e => {
-      btn.classList.remove('playing');
-      btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
-      toast('Предпрослушка недоступна');
-      _previewIdx = -1;
-    });
+    .catch(() => { btn.classList.remove('playing'); btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>'; toast('Предпрослушка недоступна'); _previewIdx = -1; });
 }
-
-// ── Добавление трека ─────────────────────────
 
 async function studioAddTrack(idx) {
   const item = _studioResults[idx];
   if (!item || item.in_archive) return;
-
   const row = document.getElementById(`sr_${idx}`);
   const btn = row?.querySelector('.sr-add');
-  if (btn) { btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>'; btn.disabled = true; }
-
+  if (btn) btn.innerHTML = '⏳';
   const r = await studioApi('/studio/add', 'POST', { url: item.url, artist: item.artist, title: item.title });
-
   if (!r || r.error) {
-    toast(r?.message || r?.error || 'Ошибка запуска');
-    if (btn) { btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>'; btn.disabled = false; }
+    toast(r?.message || r?.error || 'Ошибка');
+    if (btn) btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>';
     return;
   }
-
-  const job = { job_id: r.job_id, status: 'queued', step: '⏳ В очереди...', artist: item.artist, title: item.title, created_at: Date.now() };
-  _studioJobs[r.job_id] = job;
+  _studioJobs[r.job_id] = { job_id:r.job_id, status:'queued', step:'⏳ В очереди...', artist:item.artist, title:item.title, created_at:Date.now() };
   _startJobPoller(r.job_id);
   item.in_archive = true;
-
-  // Перерисовываем карточку
   if (row) row.outerHTML = buildStudioResult(item, idx);
-
-  // Обновляем джобы
-  const jobsArea = document.getElementById('studioJobsArea');
-  if (jobsArea) {
-    const cards = Object.values(_studioJobs).sort((a,b) => b.created_at - a.created_at).map(buildJobCard).join('');
-    jobsArea.innerHTML = `<div class="section-title">Загрузки</div>${cards}`;
-  }
+  const ja = document.getElementById('studioJobsArea');
+  if (ja) ja.innerHTML = `<div class="section-title">Загрузки</div>${Object.values(_studioJobs).sort((a,b)=>b.created_at-a.created_at).map(buildJobCard).join('')}`;
   toast(`⬇️ ${item.artist} — ${item.title}`);
 }
 
-// ── Job cards ────────────────────────────────
-
 function buildJobCard(job) {
-  const statusClass = job.status === 'ready' ? 'ready' : job.status === 'error' ? 'error' : '';
-  const pct = job.status === 'ready' ? 100 : job.status === 'error' ? 100 : _stepProgress(job.step);
-  const publishBtn = job.status === 'ready'
+  const sc = job.status==='ready'?'ready':job.status==='error'?'error':'';
+  const pct = job.status==='ready'?100:job.status==='error'?100:_stepProgress(job.step);
+  const pubBtn = job.status==='ready'
     ? `<button class="job-publish-btn" onclick="openPlSheet('${job.job_id}')">Опубликовать</button>`
     : `<button class="job-publish-btn" disabled>Опубликовать</button>`;
-  const dismissBtn = (job.status === 'ready' || job.status === 'error')
-    ? `<button class="job-dismiss-btn" onclick="dismissJob('${job.job_id}')">✕</button>` : '';
-  return `
-    <div class="job-card ${statusClass}" id="job_${job.job_id}">
-      <div class="job-card-header">
-        <div class="job-card-info">
-          <div class="job-card-artist">${x(job.artist)}</div>
-          <div class="job-card-title">${x(job.title)}</div>
-        </div>
-      </div>
-      <div class="job-step" id="jstep_${job.job_id}">${x(job.step)}</div>
-      <div class="job-progress"><div class="job-progress-fill" id="jprog_${job.job_id}" style="width:${pct}%"></div></div>
-      <div class="job-actions">${publishBtn}${dismissBtn}</div>
-    </div>`;
+  const disBtn = (job.status==='ready'||job.status==='error') ? `<button class="job-dismiss-btn" onclick="dismissJob('${job.job_id}')">✕</button>` : '';
+  return `<div class="job-card ${sc}" id="job_${job.job_id}"><div class="job-card-artist">${x(job.artist)}</div><div class="job-card-title">${x(job.title)}</div><div class="job-step" id="jstep_${job.job_id}">${x(job.step)}</div><div class="job-progress"><div class="job-progress-fill" id="jprog_${job.job_id}" style="width:${pct}%"></div></div><div class="job-actions">${pubBtn}${disBtn}</div></div>`;
 }
 
-function _stepProgress(step) {
-  if (!step) return 10;
-  if (step.includes('Скачива')) return 20;
-  if (step.includes('метаданн')) return 40;
-  if (step.includes('обложк'))  return 55;
-  if (step.includes('MP3'))     return 70;
-  if (step.includes('текст'))   return 85;
-  if (step.includes('Telegram')) return 95;
+function _stepProgress(s) {
+  if (!s) return 10;
+  if (s.includes('Скачива')) return 20; if (s.includes('метаданн')) return 40;
+  if (s.includes('обложк')) return 55; if (s.includes('MP3')) return 70;
+  if (s.includes('текст')) return 85; if (s.includes('Telegram')) return 95;
   return 10;
 }
 
@@ -1695,370 +1354,55 @@ function _startJobPoller(job_id) {
     const r = await studioApi(`/studio/job/${job_id}`);
     if (!r || r.error) return;
     _studioJobs[job_id] = { ..._studioJobs[job_id], ...r };
-
     const stepEl = document.getElementById(`jstep_${job_id}`);
     const progEl = document.getElementById(`jprog_${job_id}`);
     const card   = document.getElementById(`job_${job_id}`);
     if (stepEl) stepEl.textContent = r.step || '';
-    if (progEl) progEl.style.width = (r.status === 'ready' ? 100 : _stepProgress(r.step)) + '%';
-    if (card) { card.classList.toggle('ready', r.status === 'ready'); card.classList.toggle('error', r.status === 'error'); }
-
-    if (r.status === 'ready' || r.status === 'error') {
-      clearInterval(_studioPollers[job_id]);
-      delete _studioPollers[job_id];
+    if (progEl) progEl.style.width = (r.status==='ready'?100:_stepProgress(r.step))+'%';
+    if (card) { card.classList.toggle('ready', r.status==='ready'); card.classList.toggle('error', r.status==='error'); }
+    if (r.status==='ready'||r.status==='error') {
+      clearInterval(_studioPollers[job_id]); delete _studioPollers[job_id];
       if (card) card.outerHTML = buildJobCard(_studioJobs[job_id]);
-      if (r.status === 'ready') toast(`✅ ${r.artist} — ${r.title} готов!`);
-      if (r.status === 'error') toast(`❌ ${r.error}`);
+      if (r.status==='ready') toast(`✅ ${r.artist} — ${r.title} готов!`);
+      if (r.status==='error') toast(`❌ ${r.error}`);
     }
   }, 2500);
 }
 
 function dismissJob(job_id) {
-  clearInterval(_studioPollers[job_id]);
-  delete _studioPollers[job_id];
-  delete _studioJobs[job_id];
+  clearInterval(_studioPollers[job_id]); delete _studioPollers[job_id]; delete _studioJobs[job_id];
   document.getElementById(`job_${job_id}`)?.remove();
-  const jobsArea = document.getElementById('studioJobsArea');
-  if (jobsArea && !Object.keys(_studioJobs).length) jobsArea.innerHTML = '';
+  if (!Object.keys(_studioJobs).length) { const ja=document.getElementById('studioJobsArea'); if(ja) ja.innerHTML=''; }
 }
-
-// ── Playlist sheet ───────────────────────────
 
 function openPlSheet(job_id) {
   _plSheetJobId = job_id;
   const opts = document.getElementById('plSheetOptions');
-  opts.innerHTML =
-    `<button class="pl-option" onclick="publishJob(null)"><span>📤</span><span style="flex:1">Без плейлиста</span></button>` +
-    (playlists || []).map(pl => `
-      <button class="pl-option" onclick="publishJob(${pl.id})">
-        <span>📂</span><span style="flex:1">${x(pl.name)}</span>
-        <span class="pl-option-count">${pl.track_count}</span>
-      </button>`).join('');
+  opts.innerHTML = `<button class="pl-option" onclick="publishJob(null)"><span>📤</span><span style="flex:1">Без плейлиста</span></button>`
+    + (playlists||[]).map(pl=>`<button class="pl-option" onclick="publishJob(${pl.id})"><span>📂</span><span style="flex:1">${x(pl.name)}</span><span class="pl-option-count">${pl.track_count}</span></button>`).join('');
   document.getElementById('plSheet').classList.add('show');
 }
-
-function closePlSheet() {
-  document.getElementById('plSheet').classList.remove('show');
-  _plSheetJobId = null;
-}
+function closePlSheet() { document.getElementById('plSheet').classList.remove('show'); _plSheetJobId = null; }
 
 async function publishJob(playlist_id) {
-  const job_id = _plSheetJobId;
-  closePlSheet();
+  const job_id = _plSheetJobId; closePlSheet();
   if (!job_id) return;
   toast('📤 Публикую...');
   const r = await studioApi('/studio/publish', 'POST', { job_id, playlist_id });
-  if (r?.ok) {
-    toast(r.message || '✅ Опубликовано!');
-    dismissJob(job_id);
-    playlists = await api('/playlists') || playlists;
-  } else {
-    toast(`❌ ${r?.error || 'Ошибка публикации'}`);
-  }
+  if (r?.ok) { toast(r.message||'✅ Опубликовано!'); dismissJob(job_id); playlists = await api('/playlists')||playlists; }
+  else toast(`❌ ${r?.error||'Ошибка'}`);
 }
 
-// ── Studio API helper ────────────────────────
-
-async function studioApi(path, method = 'GET', body = null) {
-  if (!BOT_API) { toast('Нет подключения к серверу'); return null; }
+async function studioApi(path, method='GET', body=null) {
+  if (!BOT_API) { toast('Нет подключения'); return null; }
   try {
-    const opts = {
-      method,
-      headers: { 'Content-Type': 'application/json', 'bypass-tunnel-reminder': '1' },
-      signal: AbortSignal.timeout(60000),
-    };
+    const opts = { method, headers:{'Content-Type':'application/json','bypass-tunnel-reminder':'1'}, signal:AbortSignal.timeout(90000) };
     if (body) opts.body = JSON.stringify(body);
     const r = await fetch(`${BOT_API}${path}`, opts);
     return await r.json();
   } catch(e) { console.warn('studioApi:', e); return null; }
 }
 
-async function renderStudio(el) {
-  const jobCards = Object.values(_studioJobs)
-    .sort((a, b) => b.created_at - a.created_at)
-    .map(j => buildJobCard(j))
-    .join('');
-
-  const resultsHtml = _studioResults.length
-    ? _studioResults.map(buildStudioResult).join('')
-    : '<div class="search-hint">Введи запрос чтобы найти треки на SoundCloud / YouTube</div>';
-
-  el.innerHTML = `
-    <div class="studio-search-wrap">
-      <input class="studio-search-input" id="studioQ" type="search"
-             placeholder="Артист — Название..." autocomplete="off"
-             onkeydown="if(event.key==='Enter')studioDoSearch()">
-      <button class="studio-search-btn" id="studioBtn" onclick="studioDoSearch()">Найти</button>
-    </div>
-    ${jobCards ? `<div class="section-title">Активные загрузки</div>${jobCards}` : ''}
-    <div id="studioResults">${_studioResults.length ? '<div class="section-title">Результаты</div>' + resultsHtml : resultsHtml}</div>`;
-}
-
-async function studioDoSearch() {
-  const q = (document.getElementById('studioQ')?.value || '').trim();
-  if (!q) return;
-  const btn = document.getElementById('studioBtn');
-  const res = document.getElementById('studioResults');
-  if (btn) btn.disabled = true;
-  if (res) res.innerHTML = '<div class="loading"><div class="spinner"></div><span>Ищу на SoundCloud / YouTube...</span></div>';
-
-  try {
-    const r = await studioApi(`/studio/search?q=${encodeURIComponent(q)}&limit=10`);
-    if (!r || r.error) {
-      if (res) res.innerHTML = `<div class="empty"><div class="empty-text">${r?.error || 'Ошибка'}</div></div>`;
-      return;
-    }
-    _studioResults = r;
-    if (res) {
-      res.innerHTML = r.length
-        ? `<div class="section-title">${r.length} результатов</div>` + r.map(buildStudioResult).join('')
-        : '<div class="empty"><div class="empty-text">Ничего не найдено</div></div>';
-    }
-  } finally {
-    if (btn) btn.disabled = false;
-  }
-}
-
-function buildStudioResult(item, idx) {
-  const dur = item.duration ? fmtTime(item.duration) : '';
-  const src = item.source === 'soundcloud' ? '☁️ SC' : item.source === 'youtube' ? '▶️ YT' : item.source;
-  const inArc = item.in_archive;
-  const btnHtml = inArc
-    ? `<div class="studio-add-btn in-arc" title="Уже в архиве">✓</div>`
-    : `<button class="studio-add-btn" onclick="studioAddTrack(${idx})" title="Добавить в архив">+</button>`;
-  const thumb = item.thumbnail
-    ? `<img src="${x(item.thumbnail)}" loading="lazy" onerror="this.remove()">`
-    : `<svg width="18" height="18" viewBox="0 0 24 24" fill="var(--text3)"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/></svg>`;
-  return `
-    <div class="studio-result" id="sr_${idx}">
-      <div class="studio-thumb">${thumb}</div>
-      <div class="studio-result-info">
-        <div class="studio-result-artist">${x(item.artist)}</div>
-        <div class="studio-result-title">${x(item.title)}</div>
-        <div class="studio-result-meta">${[src, dur].filter(Boolean).join(' · ')}</div>
-      </div>
-      ${btnHtml}
-    </div>`;
-}
-
-async function studioAddTrack(idx) {
-  const item = _studioResults[idx];
-  if (!item || item.in_archive) return;
-
-  // Помечаем кнопку как загружающуюся
-  const row = document.getElementById(`sr_${idx}`);
-  const btn = row?.querySelector('.studio-add-btn');
-  if (btn) { btn.textContent = '⏳'; btn.disabled = true; btn.style.opacity = '0.6'; }
-
-  const r = await studioApi('/studio/add', 'POST', {
-    url:    item.url,
-    artist: item.artist,
-    title:  item.title,
-  });
-
-  if (!r || r.error) {
-    toast(r?.message || r?.error || 'Ошибка запуска');
-    if (btn) { btn.textContent = '+'; btn.disabled = false; btn.style.opacity = ''; }
-    return;
-  }
-
-  // Стартуем job
-  const job = {
-    job_id:     r.job_id,
-    status:     'queued',
-    step:       '⏳ В очереди...',
-    artist:     item.artist,
-    title:      item.title,
-    created_at: Date.now(),
-  };
-  _studioJobs[r.job_id] = job;
-  _startJobPoller(r.job_id);
-
-  // Помечаем результат
-  item.in_archive = true;
-  if (btn) { btn.textContent = '✓'; btn.classList.add('done'); btn.disabled = true; }
-
-  // Перерисовываем раздел с джобами
-  renderStudioSub();
-  toast(`⬇️ Начинаю: ${item.artist} — ${item.title}`);
-}
-
-// ── Job cards ───────────────────────────────────
-
-function buildJobCard(job) {
-  const statusClass = job.status === 'ready' ? 'ready' : job.status === 'error' ? 'error' : '';
-  const progress = {
-    queued:  5,
-    running: _stepProgress(job.step),
-    ready:   100,
-    error:   100,
-  }[job.status] || 5;
-
-  const publishBtn = job.status === 'ready'
-    ? `<button class="job-publish-btn" onclick="openPlSheet('${job.job_id}')">📤 Опубликовать</button>`
-    : `<button class="job-publish-btn" disabled>📤 Опубликовать</button>`;
-  const dismissBtn = (job.status === 'ready' || job.status === 'error')
-    ? `<button class="job-dismiss-btn" onclick="dismissJob('${job.job_id}')" title="Убрать">✕</button>`
-    : '';
-
-  return `
-    <div class="job-card ${statusClass}" id="job_${job.job_id}">
-      <div class="job-card-header">
-        <div class="job-card-info">
-          <div class="job-card-artist">${x(job.artist)}</div>
-          <div class="job-card-title">${x(job.title)}</div>
-        </div>
-      </div>
-      <div class="job-step" id="jstep_${job.job_id}">${x(job.step)}</div>
-      <div class="job-progress"><div class="job-progress-fill" id="jprog_${job.job_id}" style="width:${progress}%"></div></div>
-      <div class="job-actions">
-        ${publishBtn}
-        ${dismissBtn}
-      </div>
-    </div>`;
-}
-
-function _stepProgress(step) {
-  if (!step) return 10;
-  if (step.includes('Скачива')) return 20;
-  if (step.includes('метаданн')) return 40;
-  if (step.includes('обложк'))  return 55;
-  if (step.includes('MP3'))     return 70;
-  if (step.includes('текст'))   return 85;
-  if (step.includes('Telegram')) return 95;
-  return 10;
-}
-
-function _startJobPoller(job_id) {
-  if (_studioPollers[job_id]) return;
-  _studioPollers[job_id] = setInterval(async () => {
-    const r = await studioApi(`/studio/job/${job_id}`);
-    if (!r || r.error) return;
-
-    _studioJobs[job_id] = { ..._studioJobs[job_id], ...r, created_at: _studioJobs[job_id]?.created_at || Date.now() };
-
-    // Обновляем карточку без полной перерисовки
-    const stepEl = document.getElementById(`jstep_${job_id}`);
-    const progEl = document.getElementById(`jprog_${job_id}`);
-    const card   = document.getElementById(`job_${job_id}`);
-
-    if (stepEl) stepEl.textContent = r.step || '';
-    if (progEl) {
-      const pct = r.status === 'ready' ? 100 : r.status === 'error' ? 100 : _stepProgress(r.step);
-      progEl.style.width = pct + '%';
-    }
-    if (card) {
-      card.classList.toggle('ready', r.status === 'ready');
-      card.classList.toggle('error', r.status === 'error');
-    }
-
-    // Когда готово — обновляем кнопку публикации
-    if (r.status === 'ready' || r.status === 'error') {
-      clearInterval(_studioPollers[job_id]);
-      delete _studioPollers[job_id];
-      // Перерисуем карточку полностью чтобы показать правильные кнопки
-      if (card) card.outerHTML = buildJobCard(_studioJobs[job_id]);
-      if (r.status === 'ready') toast(`✅ ${r.artist} — ${r.title} готов!`);
-      if (r.status === 'error') toast(`❌ Ошибка: ${r.error}`);
-    }
-  }, 2500);
-}
-
-function dismissJob(job_id) {
-  if (_studioPollers[job_id]) {
-    clearInterval(_studioPollers[job_id]);
-    delete _studioPollers[job_id];
-  }
-  delete _studioJobs[job_id];
-  const card = document.getElementById(`job_${job_id}`);
-  if (card) card.remove();
-}
-
-// ── Playlist sheet ──────────────────────────────
-
-function openPlSheet(job_id) {
-  _plSheetJobId = job_id;
-  const opts = document.getElementById('plSheetOptions');
-  const pls  = playlists || [];
-  opts.innerHTML =
-    `<button class="pl-option" onclick="publishJob(null)">
-       <span>📤</span> <span style="flex:1">Без плейлиста</span>
-     </button>` +
-    pls.map(pl => `
-      <button class="pl-option" onclick="publishJob(${pl.id})">
-        <span>📂</span>
-        <span style="flex:1">${x(pl.name)}</span>
-        <span class="pl-option-count">${pl.track_count}</span>
-      </button>`).join('');
-  document.getElementById('plSheet').classList.add('show');
-}
-
-function closePlSheet() {
-  document.getElementById('plSheet').classList.remove('show');
-  _plSheetJobId = null;
-}
-
-async function publishJob(playlist_id) {
-  closePlSheet();
-  const job_id = _plSheetJobId || Object.keys(_studioJobs).find(
-    id => _studioJobs[id].status === 'ready'
-  );
-  if (!job_id) return;
-
-  toast('📤 Публикую...');
-  const r = await studioApi('/studio/publish', 'POST', { job_id, playlist_id });
-
-  if (r?.ok) {
-    toast(r.message || '✅ Опубликовано!');
-    dismissJob(job_id);
-    // Обновляем список плейлистов
-    playlists = await api('/playlists') || playlists;
-  } else {
-    toast(`❌ ${r?.error || 'Ошибка публикации'}`);
-  }
-}
-
-// ── API helper с initData авторизацией ──────────
-
-async function studioApi(path, method = 'GET', body = null) {
-  if (!BOT_API) { toast('Нет подключения к серверу'); return null; }
-  const initData = window.Telegram?.WebApp?.initData || '';
-  try {
-    const opts = {
-      method,
-      headers: {
-        'Content-Type':      'application/json',
-        'X-Tg-Init-Data':    initData,
-        'bypass-tunnel-reminder': '1',
-      },
-      signal: AbortSignal.timeout(60000),
-    };
-    if (body) opts.body = JSON.stringify(body);
-    const r = await fetch(`${BOT_API}${path}`, opts);
-    return await r.json();
-  } catch(e) {
-    console.warn('studioApi:', e);
-    return null;
-  }
-}
-
-// ══════════════════════════════════════════════
-//  ПАТЧ switchTab — добавляем studio
-// ══════════════════════════════════════════════
-
-
-(async () => {
-  setVolume(100);
-  _initStudio();
-  await autoFetchTunnelUrl();
-  if (BOT_API) {
-    await checkConnection();
-    fetchBotUsername();
-    loadTab('home');
-  } else {
-    showApiSetup();
-  }
-})();
 </script>
 <div class="lyrics-modal" id="lyricsModal">
   <div class="lyrics-header">
